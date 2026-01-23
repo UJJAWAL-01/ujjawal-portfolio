@@ -2,6 +2,7 @@ import { motion, useInView } from 'framer-motion';
 import { useRef, useState } from 'react';
 import { ChevronRight, X, TrendingUp, BarChart2, Activity, Lightbulb } from 'lucide-react';
 import { Button } from './ui/button';
+import dbbImage from '../assets/DBB.png';
 
 const researchItems = [
   {
@@ -56,7 +57,7 @@ const researchItems = [
     id: 'r3',
     title: 'Drifted Bollinger Bands',
     excerpt: 'Multi-filter BB breakout strategy using long-term trend (365 EMA), short-term volatility gating, and ATR-based trailing stops.',
-    image: '/DBB.png',
+    image: dbbImage,
     icon: Activity,
     gradient: 'from-green-600 to-emerald-500',
     fullContent: {
