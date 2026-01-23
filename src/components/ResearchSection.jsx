@@ -3,6 +3,10 @@ import { useRef, useState } from 'react';
 import { ChevronRight, X, TrendingUp, BarChart2, Activity, Lightbulb } from 'lucide-react';
 import { Button } from './ui/button';
 import dbbImage from '../assets/DBB.png';
+import fcprImage from '../assets/F_CPR.png';
+import gaprImage from '../assets/GAPR.png';
+
+
 
 const researchItems = [
   {
@@ -34,7 +38,7 @@ const researchItems = [
     id: 'r2',
     title: 'Fibonacci Central Pivot Range',
     excerpt: 'Range-based pivot framework that fuses CPR geometry with Fibonacci scaling to produce adaptive bands for entries and exits.',
-    image: '/F_CPR.png',
+    image: fcprImage,
     icon: BarChart2,
     gradient: 'from-purple-600 to-pink-500',
     fullContent: {
@@ -81,7 +85,7 @@ const researchItems = [
     id: 'r4',
     title: 'Gap Reversal Capture',
     excerpt: 'Targets reversal opportunities after significant market-open gaps using gap magnitude, RSI exhaustion and ATR-based adaptive stops.',
-    image: '/GAPR.png',
+    image: gaprImage,
     icon: Lightbulb,
     gradient: 'from-amber-600 to-orange-500',
     fullContent: {

@@ -1,6 +1,8 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
 import { Calendar } from 'lucide-react';
+import tamuLogo from '../assets/TAM-MaroonBox-1.png';     
+import somaiyaLogo from '../assets/download.png';
 
 const educationData = [
   {
@@ -8,7 +10,7 @@ const educationData = [
     institution: 'Texas A&M University, Mays Business School',
     location: 'College Station, Texas',
     period: 'Expected May 2027',
-    logo: '/TAM-MaroonBox-1.png',
+    logo: tamuLogo,
     color: 'from-[#500000] to-[#7a0000]',
     highlights: ['Graduate MIS Program', 'Business Analytics Focus'],
   },
@@ -17,7 +19,7 @@ const educationData = [
     institution: 'K.J. Somaiya College of Engineering',
     location: 'Mumbai, India',
     period: 'Graduated May 2025',
-    logo: '/download.png',
+    logo: somaiyaLogo,
     color: 'from-primary to-accent',
     highlights: ['Honors in Cybersecurity, Forensics & Cyber Laws', 'Computer Engineering Curriculum'],
   },

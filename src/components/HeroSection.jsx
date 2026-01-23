@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { MapPin, Linkedin, Github, Mail, FileText, ChevronDown } from 'lucide-react';
 import { Button } from './ui/button';
 import { ParticleBackground } from './ParticleBackground';
+import resume from '../assets/Resume_2026.pdf';
 
 export const HeroSection = () => {
   const roles = ['Graduate MIS Student', 'Business Analyst', 'Technical Analyst'];
@@ -136,7 +137,7 @@ export const HeroSection = () => {
               </Button>
             </motion.a>
             <motion.a
-              href="/Resume_2026.pdf"
+              href={resume}
               target="_blank"
               rel="noopener noreferrer"
               whileHover={{ scale: 1.05, y: -2 }}

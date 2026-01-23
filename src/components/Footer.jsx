@@ -73,8 +73,9 @@ export const Footer = () => {
             className="text-sm text-muted-foreground flex items-center gap-1"
             data-testid="footer-copyright"
           >
-            © {currentYear} Ujjawal Patel. Built with{' '}
-            <Heart size={14} className="text-red-500 fill-red-500" /> in React
+            © {currentYear} Ujjawal Patel.
+            All rights reserved.
+            
           </motion.p>
         </div>
       </div>
