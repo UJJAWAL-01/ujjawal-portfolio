@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { MapPin, Linkedin, Github, Mail, FileText, ChevronDown } from 'lucide-react';
 import { Button } from './ui/button';
 import { ParticleBackground } from './ParticleBackground';
-import resume from '../assets/Resume_2026.pdf';
+import resume from './assets/Resume_2026.pdf';
 
 export const HeroSection = () => {
   const roles = ['Graduate MIS Student', 'Business Analyst', 'Technical Analyst'];
