@@ -1,6 +1,6 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef, useState } from 'react';
-import { ChevronRight, X, TrendingUp, BarChart2, Activity, Lightbulb } from 'lucide-react';
+import { ChevronRight, X, TrendingUp, BarChart2, Activity, Lightbulb, Signal } from 'lucide-react';
 import { Button } from './ui/button';
 import dbbImage from '../assets/DBB.png';
 import fcprImage from '../assets/F_CPR.png';
@@ -13,8 +13,8 @@ const researchItems = [
     id: 'r1',
     title: 'Signal Confidence Engine',
     excerpt: 'A multi-timeframe technical analysis engine that synthesizes trend, momentum, volume, and price structure into an explainable confidence score.',
-    image: SS.png,
-    icon: TrendingUp,
+    image: signal.png,
+    icon: Signal,
     gradient: 'from-blue-600 to-cyan-500',
     fullContent: {
       overview: 'The Signal Confidence Engine converts raw market data into a single, interpretable confidence score by evaluating indicator confluence across multiple timeframes. Instead of relying on isolated signals, the system emphasizes agreement between trend, momentum, volume participation, and Fibonacci price structure.',
