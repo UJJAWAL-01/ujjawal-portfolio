@@ -13,7 +13,7 @@ const researchItems = [
     id: 'r1',
     title: 'Signal Confidence Engine',
     excerpt: 'A multi-timeframe technical analysis engine that synthesizes trend, momentum, volume, and price structure into an explainable confidence score.',
-    image: '/SCG.png',
+    image: SS.png,
     icon: TrendingUp,
     gradient: 'from-blue-600 to-cyan-500',
     fullContent: {
