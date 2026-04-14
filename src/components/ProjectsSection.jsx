@@ -5,6 +5,15 @@ import { Button } from './ui/button';
 
 const projects = [
   {
+    title: 'NEXUS Trading Intelligence Dashboard',
+    description: 'This is called NEXUS — a real-time trading intelligence dashboard that runs in your browser. No subscription. No fees. No API keys needed to get started (free tiers supported throughout).',
+    icon: TrendingUp,
+    link: 'https://nexus-trading-nine.vercel.app/',
+    tags: ['Python','TypeScript','Open Source', 'Technical Analysis', 'Multi-Timeframe', 'Trading'],
+    featured: true,
+    gradient: 'from-blue-600 to-cyan-500',
+  },
+  {
     title: 'Signal Confidence Engine',
     description: 'A professional-grade market analytics platform that synthesizes raw technical indicators into a unified confidence-driven trading signal. Evaluates trend alignment, momentum strength, volume participation, and price structure across multiple timeframes.',
     icon: TrendingUp,
