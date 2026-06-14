@@ -1,27 +1,33 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
-import { Calendar } from 'lucide-react';
-import tamuLogo from '../assets/TAM-MaroonBox-1.png';     
+import { Calendar, GraduationCap } from 'lucide-react';
+import { Panel } from './ui/panel';
+import { SectionHeader } from './ui/section-header';
+import tamuLogo from '../assets/TAM-MaroonBox-1.png';
 import somaiyaLogo from '../assets/download.png';
 
 const educationData = [
   {
-    degree: 'Master of Science in Management Information Systems',
-    institution: 'Texas A&M University, Mays Business School',
+    code: 'TAMU',
+    degree: 'M.S. Management Information Systems',
+    institution: 'Texas A&M University · Mays Business School',
     location: 'College Station, Texas',
     period: 'Expected May 2027',
+    status: 'IN PROGRESS',
+    tone: 'active',
     logo: tamuLogo,
-    color: 'from-[#500000] to-[#7a0000]',
     highlights: ['Graduate MIS Program', 'Business Analytics Focus'],
   },
   {
-    degree: 'Bachelor of Technology in Computer Engineering',
+    code: 'KJSCE',
+    degree: 'B.Tech. Computer Engineering',
     institution: 'K.J. Somaiya College of Engineering',
     location: 'Mumbai, India',
     period: 'Graduated May 2025',
+    status: 'COMPLETE',
+    tone: 'closed',
     logo: somaiyaLogo,
-    color: 'from-primary to-accent',
-    highlights: ['Honors in Cybersecurity, Forensics & Cyber Laws', 'Computer Engineering Curriculum'],
+    highlights: ['Honors: Cybersecurity, Forensics & Cyber Laws', 'Computer Engineering'],
   },
 ];
 
@@ -30,94 +36,66 @@ export const EducationSection = () => {
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
   return (
-    <section
-      id="education"
-      className="py-20 md:py-32 relative"
-      ref={ref}
-      data-testid="education-section"
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-16"
-        >
-          <p className="text-sm font-mono uppercase tracking-widest text-primary mb-4" data-testid="education-label">
-            Academic Background
-          </p>
-          <h2 className="text-3xl md:text-5xl font-bold tracking-tight" data-testid="education-title">
-            Education
-          </h2>
-        </motion.div>
+    <section id="education" className="py-20 md:py-32 relative" ref={ref} data-testid="education-section">
+      <div className="absolute inset-0 grid-bg grid-bg-fade opacity-[0.12] pointer-events-none" />
 
-        {/* Timeline */}
-        <div className="relative">
-          {/* Timeline line */}
-          <div className="absolute left-8 md:left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-primary via-accent to-primary transform md:-translate-x-1/2" />
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        <SectionHeader
+          index="02"
+          code="~/education"
+          meta="2 records"
+          title={<><span className="gradient-text">Education</span></>}
+          subtitle="Where the foundations came from."
+        />
 
-          <div className="space-y-12">
-            {educationData.map((edu, index) => (
-              <motion.div
-                key={edu.degree}
-                initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
-                animate={isInView ? { opacity: 1, x: 0 } : {}}
-                transition={{ duration: 0.6, delay: index * 0.2 }}
-                className={`relative flex items-center ${
-                  index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'
-                }`}
-                data-testid={`education-item-${index}`}
-              >
-                {/* Timeline dot */}
-                <div className="absolute left-8 md:left-1/2 w-4 h-4 rounded-full bg-primary transform -translate-x-1/2 z-10 glow-primary" />
-
-                {/* Content */}
-                <div className={`ml-20 md:ml-0 md:w-1/2 ${index % 2 === 0 ? 'md:pr-16' : 'md:pl-16'}`}>
-                  <div className="glass-card rounded-2xl p-6 md:p-8 card-hover group">
-                    <div className="flex items-start gap-4 mb-4">
-                      {/* Logo */}
-                      <div className="w-16 h-16 rounded-xl bg-white flex items-center justify-center flex-shrink-0 overflow-hidden">
-                        <img
-                          src={edu.logo}
-                          alt={`${edu.institution} logo`}
-                          className="w-14 h-14 object-contain"
-                          onError={(e) => {
-                            e.target.style.display = 'none';
-                          }}
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-xl font-bold text-foreground mb-1 leading-tight">
-                          {edu.degree}
-                        </h3>
-                        <p className="text-primary font-medium">{edu.institution}</p>
-                      </div>
+        <div className="grid md:grid-cols-2 gap-6">
+          {educationData.map((edu, index) => (
+            <motion.div
+              key={edu.code}
+              initial={{ opacity: 0, y: 30 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.6, delay: index * 0.15 }}
+            >
+              <Panel code={edu.code} title={edu.institution} status={edu.status} tone={edu.tone} blink={edu.tone === 'active'} className="h-full">
+                <div className="flex items-start gap-4 mb-4">
+                  <div className="w-14 h-14 rounded-md bg-white flex items-center justify-center flex-shrink-0 overflow-hidden border border-border">
+                    <img
+                      src={edu.logo}
+                      alt={`${edu.institution} logo`}
+                      className="w-11 h-11 object-contain"
+                      onError={(e) => { e.target.style.display = 'none'; }}
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 text-accent mb-1">
+                      <GraduationCap size={14} />
+                      <span className="font-mono text-[10px] uppercase tracking-widest">Degree</span>
                     </div>
-
-                    <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-4">
-                      <span className="flex items-center gap-1">
-                        <Calendar size={14} />
-                        {edu.period}
-                      </span>
-                    </div>
-
-                    {/* Highlights */}
-                    <div className="flex flex-wrap gap-2">
-                      {edu.highlights.map((highlight) => (
-                        <span
-                          key={highlight}
-                          className="pill text-xs"
-                        >
-                          {highlight}
-                        </span>
-                      ))}
-                    </div>
+                    <h3 className="text-base md:text-lg font-display font-bold text-foreground leading-tight">
+                      {edu.degree}
+                    </h3>
                   </div>
                 </div>
-              </motion.div>
-            ))}
-          </div>
+
+                <div className="data-row text-muted-foreground">
+                  <span className="flex items-center gap-1.5"><Calendar size={13} /> Term</span>
+                  <span className="text-foreground/90">{edu.period}</span>
+                </div>
+                <div className="data-row text-muted-foreground">
+                  <span>Location</span>
+                  <span className="text-foreground/90">{edu.location}</span>
+                </div>
+
+                <div className="flex flex-wrap gap-2 mt-4">
+                  {edu.highlights.map((h) => (
+                    <span key={h} className="font-mono text-[11px] text-primary/80 border border-primary/20 bg-primary/5 rounded px-2 py-0.5">
+                      {h}
+                    </span>
+                  ))}
+                </div>
+              </Panel>
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>

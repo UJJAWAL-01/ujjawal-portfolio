@@ -1,149 +1,126 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
-import { Code2, BarChart3, Shield, Users } from 'lucide-react';
+import { Code2, BarChart3, Shield } from 'lucide-react';
+import { Panel } from './ui/panel';
+import { Sparkline } from './ui/sparkline';
+import { SectionHeader } from './ui/section-header';
 
-const skillCategories = [
+const sectors = [
   {
+    code: 'DEV',
     title: 'Programming & Data',
     icon: Code2,
-    skills: ['Python', 'Java', 'C', 'SQL', 'HTML', 'CSS'],
-    color: 'from-blue-500 to-cyan-500',
+    rows: [
+      { sym: 'PY', name: 'Python' },
+      { sym: 'JAVA', name: 'Java' },
+      { sym: 'C', name: 'C' },
+      { sym: 'SQL', name: 'SQL' },
+      { sym: 'HTML', name: 'HTML' },
+      { sym: 'CSS', name: 'CSS' },
+    ],
   },
   {
+    code: 'BI',
     title: 'Analytics & Tools',
     icon: BarChart3,
-    skills: ['MS Excel', 'Power BI', 'PowerPoint', 'Figma', 'Tableau', 'Pine Script', 'Android Studio'],
-    color: 'from-purple-500 to-pink-500',
+    rows: [
+      { sym: 'XL', name: 'MS Excel' },
+      { sym: 'PBI', name: 'Power BI' },
+      { sym: 'TBL', name: 'Tableau' },
+      { sym: 'FIG', name: 'Figma' },
+      { sym: 'PINE', name: 'Pine Script' },
+      { sym: 'ASTD', name: 'Android Studio' },
+    ],
   },
   {
-    title: 'Cybersecurity & Tech',
+    code: 'SEC',
+    title: 'Security & Systems',
     icon: Shield,
-    skills: ['Kali Linux', 'Wireshark', 'Network Miner', 'Meterpreter'],
-    color: 'from-green-500 to-emerald-500',
+    rows: [
+      { sym: 'KALI', name: 'Kali Linux' },
+      { sym: 'WIRE', name: 'Wireshark' },
+      { sym: 'NMNR', name: 'Network Miner' },
+      { sym: 'METR', name: 'Meterpreter' },
+    ],
   },
 ];
 
 const softSkills = [
-  'Analytical Thinking',
-  'Logical Reasoning',
-  'Learning Agility',
-  'Collaboration',
-  'Communication',
-  'User Story Mapping',
-  'Competitive Analysis',
-  'Confidence Under Pressure',
-  'Decision Making',
+  'Analytical Thinking', 'Logical Reasoning', 'Learning Agility', 'Collaboration',
+  'Communication', 'User Story Mapping', 'Competitive Analysis',
+  'Decision Making', 'Confidence Under Pressure',
 ];
+
+const hashSeed = (str) => {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) % 99991;
+  return h + 13;
+};
+
+const SkillRow = ({ row }) => {
+  const seed = hashSeed(row.sym + row.name);
+  return (
+    <div className="flex items-center gap-3 py-2.5 px-1 -mx-1 rounded hover:bg-primary/[0.06] transition-colors">
+      <span className="w-1 h-1 rounded-full bg-primary/60 shrink-0" />
+      <span className="text-sm text-foreground/90 flex-1 truncate">{row.name}</span>
+      <Sparkline seed={seed} points={20} trend={0.5} width={64} height={18} className="shrink-0 opacity-60" />
+    </div>
+  );
+};
 
 export const SkillsSection = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0 },
-  };
-
   return (
-    <section
-      id="skills"
-      className="py-20 md:py-32 relative"
-      ref={ref}
-      data-testid="skills-section"
-    >
-      {/* Background gradient */}
+    <section id="skills" className="py-20 md:py-32 relative" ref={ref} data-testid="skills-section">
       <div className="absolute inset-0 section-gradient pointer-events-none" />
+      <div className="absolute inset-0 grid-bg grid-bg-fade opacity-[0.15] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-16"
-        >
-          <p className="text-sm font-mono uppercase tracking-widest text-primary mb-4" data-testid="skills-label">
-            Technical Expertise
-          </p>
-          <h2 className="text-3xl md:text-5xl font-bold tracking-tight" data-testid="skills-title">
-            Skills & Proficiencies
-          </h2>
-        </motion.div>
+        <SectionHeader
+          index="03"
+          code="~/skills"
+          meta="toolkit"
+          title={<>Skills <span className="gradient-text">&amp; Tools</span></>}
+          subtitle="The languages, platforms, and tools I work with day to day."
+        />
 
-        {/* Technical Skills Grid */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate={isInView ? 'show' : 'hidden'}
-          className="grid md:grid-cols-3 gap-6 mb-12"
-        >
-          {skillCategories.map((category, index) => (
+        <div className="grid md:grid-cols-3 gap-6 mb-6">
+          {sectors.map((sector, i) => (
             <motion.div
-              key={category.title}
-              variants={itemVariants}
-              className="glass-card rounded-2xl p-6 card-hover group"
-              data-testid={`skill-category-${index}`}
+              key={sector.code}
+              initial={{ opacity: 0, y: 30 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.5, delay: i * 0.12 }}
             >
-              <div className="flex items-center gap-3 mb-6">
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${category.color} flex items-center justify-center`}>
-                  <category.icon className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="text-lg font-bold text-foreground">{category.title}</h3>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {category.skills.map((skill, skillIndex) => (
-                  <motion.span
-                    key={skill}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={isInView ? { opacity: 1, scale: 1 } : {}}
-                    transition={{ duration: 0.3, delay: 0.4 + skillIndex * 0.05 }}
-                    className="pill hover:bg-primary/10 hover:border-primary/30 transition-colors cursor-default"
-                  >
-                    {skill}
-                  </motion.span>
+              <Panel title={sector.title} status={`${sector.rows.length}`} className="h-full">
+                {sector.rows.map((row) => (
+                  <SkillRow key={row.sym} row={row} />
                 ))}
-              </div>
+              </Panel>
             </motion.div>
           ))}
-        </motion.div>
+        </div>
 
-        {/* Soft Skills */}
+        {/* Soft skills as a sentiment strip */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.5, delay: 0.4 }}
-          className="glass-card rounded-2xl p-6 md:p-8"
-          data-testid="soft-skills"
+          transition={{ duration: 0.5, delay: 0.3 }}
         >
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
-              <Users className="w-6 h-6 text-white" />
+          <Panel title="Strengths" status="">
+            <div className="flex flex-wrap gap-2">
+              {softSkills.map((skill) => (
+                <span
+                  key={skill}
+                  className="font-mono text-xs text-foreground/80 border border-border bg-muted/30 rounded px-2.5 py-1 hover:border-accent/40 hover:text-accent transition-colors"
+                >
+                  <span className="text-accent mr-1.5">▸</span>{skill}
+                </span>
+              ))}
             </div>
-            <h3 className="text-lg font-bold text-foreground">Soft Skills</h3>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {softSkills.map((skill, index) => (
-              <motion.span
-                key={skill}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={isInView ? { opacity: 1, scale: 1 } : {}}
-                transition={{ duration: 0.3, delay: 0.5 + index * 0.03 }}
-                className="pill hover:bg-accent/10 hover:border-accent/30 transition-colors cursor-default"
-              >
-                {skill}
-              </motion.span>
-            ))}
-          </div>
+          </Panel>
         </motion.div>
       </div>
     </section>

@@ -1,98 +1,67 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: hsl(var(--background));
-}
-
-::-webkit-scrollbar-thumb {
-  background: hsl(var(--border));
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--muted-foreground));
-}
-
-/* Selection styling */
-::selection {
-  background: hsl(var(--primary) / 0.3);
-  color: hsl(var(--foreground));
-}
-
-body {
-  margin: 0;
-  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
-}
-
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Outfit', sans-serif;
-}
-
-code, .mono {
-  font-family: 'JetBrains Mono', monospace;
-}
-
-/* Smooth scroll */
-html {
-  scroll-behavior: smooth;
-}
+/* ============================================================
+   "Signal from Noise" design tokens
+   Near-black canvas · data-cyan (noise) · signal-amber (insight)
+   ============================================================ */
 
 @layer base {
   :root {
+    /* Light mode (lite / fallback) */
     --background: 210 40% 98%;
     --foreground: 222 47% 11%;
     --card: 0 0% 100%;
     --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
-    --primary: 217 91% 60%;
+    --primary: 190 90% 42%;
     --primary-foreground: 210 40% 98%;
     --secondary: 215 16% 47%;
     --secondary-foreground: 210 40% 98%;
     --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
-    --accent: 160 84% 39%;
-    --accent-foreground: 210 40% 98%;
+    --muted-foreground: 215 16% 42%;
+    --accent: 35 95% 50%;
+    --accent-foreground: 222 47% 11%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 217 91% 60%;
+    --border: 214 32% 88%;
+    --input: 214 32% 88%;
+    --ring: 190 90% 42%;
     --radius: 0.75rem;
+
+    --noise: 190 95% 55%;      /* data-cyan */
+    --signal: 38 96% 56%;      /* signal-amber */
+    --grid-line: 222 30% 88%;
   }
 
   .dark {
-    --background: 222 47% 2%;
-    --foreground: 210 40% 98%;
-    --card: 222 47% 6%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222 47% 6%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217 91% 60%;
-    --primary-foreground: 222 47% 2%;
+    --background: 224 36% 4%;
+    --foreground: 210 25% 96%;
+    --card: 223 32% 7%;
+    --card-foreground: 210 25% 96%;
+    --popover: 223 32% 7%;
+    --popover-foreground: 210 25% 96%;
+    --primary: 188 95% 55%;            /* data-cyan */
+    --primary-foreground: 224 36% 4%;
     --secondary: 215 20% 65%;
-    --secondary-foreground: 222 47% 2%;
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
-    --accent: 160 60% 45%;
-    --accent-foreground: 222 47% 2%;
-    --destructive: 0 63% 31%;
+    --secondary-foreground: 224 36% 4%;
+    --muted: 220 24% 12%;
+    --muted-foreground: 214 16% 62%;
+    --accent: 38 96% 56%;              /* signal-amber */
+    --accent-foreground: 224 36% 4%;
+    --destructive: 0 63% 45%;
     --destructive-foreground: 210 40% 98%;
-    --border: 217 33% 17%;
-    --input: 217 33% 17%;
-    --ring: 217 91% 60%;
+    --border: 220 24% 14%;
+    --input: 220 24% 16%;
+    --ring: 188 95% 55%;
+
+    --noise: 188 95% 55%;
+    --signal: 38 96% 56%;
+    --grid-line: 210 40% 96%;
   }
 }
 
@@ -102,69 +71,94 @@ html {
   }
   body {
     @apply bg-background text-foreground;
+    margin: 0;
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
   }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', sans-serif;
+  }
+  code, .mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  /* When Lenis drives scrolling, disable native smooth-scroll to avoid fighting it */
+  html.lenis, html.lenis body { height: auto; }
+  .lenis.lenis-smooth { scroll-behavior: auto !important; }
+  .lenis.lenis-stopped { overflow: hidden; }
 }
 
-/* Glassmorphism utilities */
+/* ---------- Scrollbar ---------- */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: hsl(var(--background)); }
+::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground)); }
+
+::selection {
+  background: hsl(var(--primary) / 0.3);
+  color: hsl(var(--foreground));
+}
+
+/* ============================================================
+   Utilities
+   ============================================================ */
+
+/* Glass */
 .glass {
   @apply bg-background/60 backdrop-blur-xl border border-white/10;
 }
-
 .glass-card {
-  @apply bg-card/80 backdrop-blur-md border border-border/50;
+  @apply bg-card/70 backdrop-blur-md border border-border/60;
 }
 
-/* Glow effects */
-.glow-primary {
-  box-shadow: 0 0 20px hsl(var(--primary) / 0.4);
-}
+/* Glow */
+.glow-primary { box-shadow: 0 0 24px hsl(var(--primary) / 0.35); }
+.glow-accent  { box-shadow: 0 0 24px hsl(var(--accent) / 0.35); }
+.text-glow-primary { text-shadow: 0 0 24px hsl(var(--primary) / 0.5); }
+.text-glow-accent  { text-shadow: 0 0 24px hsl(var(--accent) / 0.5); }
 
-.glow-accent {
-  box-shadow: 0 0 20px hsl(var(--accent) / 0.4);
-}
-
-/* Gradient text */
+/* Gradient text: noise -> signal */
 .gradient-text {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-accent to-primary;
+  @apply bg-clip-text text-transparent;
+  background-image: linear-gradient(110deg, hsl(var(--primary)), hsl(var(--accent)) 60%, hsl(var(--primary)));
 }
 
-/* Section backgrounds */
+/* Section radial wash */
 .section-gradient {
-  background: radial-gradient(ellipse at center, hsl(var(--primary) / 0.05) 0%, transparent 70%);
+  background: radial-gradient(ellipse 80% 50% at 50% 0%, hsl(var(--primary) / 0.06) 0%, transparent 70%);
 }
 
-/* Timeline line */
-.timeline-line {
-  @apply absolute left-4 top-0 bottom-0 w-0.5 bg-gradient-to-b from-primary via-accent to-primary;
+/* Blueprint grid background */
+.grid-bg {
+  background-image:
+    linear-gradient(hsl(var(--grid-line) / 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--grid-line) / 0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+.grid-bg-fade {
+  -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 40%, #000 30%, transparent 80%);
+  mask-image: radial-gradient(ellipse 70% 70% at 50% 40%, #000 30%, transparent 80%);
 }
 
-/* Custom cursor styles */
-.cursor-glow {
-  cursor: none;
-}
-
-/* Particle canvas positioning */
-#tsparticles {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-}
-
-/* Card hover effects */
+/* Card hover */
 .card-hover {
-  @apply transition-all duration-300 hover:-translate-y-2 hover:shadow-xl;
+  @apply transition-all duration-300 hover:-translate-y-1.5;
+}
+.card-hover:hover {
+  box-shadow: 0 12px 40px -12px hsl(var(--primary) / 0.25), 0 0 0 1px hsl(var(--primary) / 0.25);
 }
 
-/* Pill badge */
+/* Pill */
 .pill {
-  @apply px-3 py-1 rounded-full text-sm font-medium border border-border bg-muted/50;
+  @apply px-3 py-1 rounded-full text-sm font-medium border border-border bg-muted/40;
 }
 
 /* Animated underline */
-.animated-underline {
-  position: relative;
-}
-
+.animated-underline { position: relative; }
 .animated-underline::after {
   content: '';
   position: absolute;
@@ -175,31 +169,138 @@ html {
   background: hsl(var(--primary));
   transition: width 0.3s ease;
 }
+.animated-underline:hover::after { width: 100%; }
 
-.animated-underline:hover::after {
-  width: 100%;
+/* Hide native cursor when crosshair active (desktop only) */
+@media (pointer: fine) {
+  .cursor-none, .cursor-none * { cursor: none; }
 }
 
-/* Loading skeleton pulse */
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
+/* Scanline + grain ambience */
+.scanlines::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.5;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 2px,
+    hsl(var(--foreground) / 0.012) 3px,
+    hsl(var(--foreground) / 0.012) 4px
+  );
 }
 
-.animate-pulse-slow {
-  animation: pulse 3s ease-in-out infinite;
+/* Mono micro-label */
+.kicker {
+  @apply text-[13px] font-mono uppercase tracking-[0.22em] text-primary;
 }
 
-/* Noise texture overlay */
-.noise-overlay::before {
+/* ---------- Trading-terminal panels (Bloomberg-style) ---------- */
+.panel {
+  position: relative;
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--card) / 0.55);
+  backdrop-filter: blur(8px);
+  border-radius: 4px;
+  overflow: hidden;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+}
+.panel:hover {
+  border-color: hsl(var(--accent) / 0.5);
+  box-shadow: 0 16px 48px -22px hsl(var(--accent) / 0.35), inset 0 0 0 1px hsl(var(--accent) / 0.1);
+}
+/* Top scan-line accent on hover */
+.panel::before {
   content: '';
   position: absolute;
-  inset: 0;
-  opacity: 0.03;
-  pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, hsl(var(--accent)), hsl(var(--primary)) 60%, transparent);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  z-index: 2;
 }
+.panel:hover::before { opacity: 1; }
+
+.panel-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: linear-gradient(180deg, hsl(var(--accent) / 0.10), transparent);
+  border-bottom: 1px solid hsl(var(--border));
+  font-family: 'JetBrains Mono', monospace;
+}
+.panel-tag {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: hsl(var(--accent));
+  border: 1px solid hsl(var(--accent) / 0.4);
+  padding: 1px 5px;
+  border-radius: 2px;
+  background: hsl(var(--accent) / 0.08);
+  white-space: nowrap;
+}
+.panel-title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: hsl(var(--accent));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.panel-status {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+  white-space: nowrap;
+}
+.panel-body { padding: 18px; }
+
+/* Tabular data row used inside panels */
+.data-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  padding: 5px 0;
+  border-bottom: 1px dashed hsl(var(--border) / 0.7);
+}
+.tick-up { color: #18c08f; }
+.tick-down { color: #ff5f56; }
+
+/* Reduced motion / lite mode: kill heavy animation */
+.lite *, .reduce-motion * {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+/* Loading pulse */
+@keyframes pulseSlow { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+.animate-pulse-slow { animation: pulseSlow 3s ease-in-out infinite; }
+
+/* Blink caret */
+@keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+.caret-blink { animation: blink 1s step-end infinite; }
+
+/* Ticker marquee */
+@keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+.animate-ticker { animation: ticker 40s linear infinite; }
+.animate-ticker:hover { animation-play-state: paused; }
