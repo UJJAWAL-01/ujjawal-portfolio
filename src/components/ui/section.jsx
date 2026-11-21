@@ -8,8 +8,8 @@ export const Reveal = ({ children, delay = 0, y = 20, className, as = 'div', ...
   const Comp = motion[as];
   return (
     <Comp
-      initial={{ opacity: 0, y, filter: 'blur(8px)' }}
-      whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)', transitionEnd: { filter: 'none' } }}
+      initial={{ opacity: 0, y }}
+      whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-70px' }}
       transition={{ duration: 0.8, delay, ease }}
       className={className}

@@ -22,10 +22,7 @@ export const LiquidLens = ({ constraintsRef, className }) => {
       aria-label="Draggable glass lens"
       role="img"
     >
-      <motion.div
-        animate={{ y: [0, -12, 0], rotate: [0, 3, 0] }}
-        transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
-      >
+      <div>
         <Glass
           refract
           radius={999}
@@ -40,7 +37,7 @@ export const LiquidLens = ({ constraintsRef, className }) => {
           <span className="pointer-events-none absolute left-[18%] top-[12%] h-[22%] w-[36%] -rotate-[24deg] rounded-full bg-white/70 blur-[3px]" />
           <span className="pointer-events-none absolute bottom-[14%] right-[20%] h-[8%] w-[14%] -rotate-[24deg] rounded-full bg-white/50 blur-[2px]" />
         </Glass>
-      </motion.div>
+      </div>
 
       <AnimatePresence>
         {!touched && (

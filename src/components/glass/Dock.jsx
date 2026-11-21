@@ -26,9 +26,19 @@ const PEAK = 66;
 const DockIcon = ({ item, mouseX }) => {
   const ref = useRef(null);
   const [hover, setHover] = useState(false);
+  // Measure the icon's resting center once per hover, not on every mouse move
+  const center = useRef(null);
   const distance = useTransform(mouseX, (x) => {
-    const b = ref.current?.getBoundingClientRect();
-    return b ? x - b.left - b.width / 2 : Infinity;
+    if (x === Infinity) {
+      center.current = null;
+      return Infinity;
+    }
+    if (center.current == null) {
+      const b = ref.current?.getBoundingClientRect();
+      if (!b) return Infinity;
+      center.current = b.left + b.width / 2;
+    }
+    return x - center.current;
   });
   const sizeRaw = useTransform(distance, [-150, 0, 150], [BASE, PEAK, BASE]);
   const size = useSpring(sizeRaw, { mass: 0.1, stiffness: 180, damping: 14 });
@@ -70,10 +80,7 @@ export const Dock = ({ className }) => {
   const mouseX = useMotionValue(Infinity);
   return (
     <Glass
-      refract
       radius={34}
-      bezel={14}
-      strength={28}
       className={`inline-flex h-[70px] items-end gap-2.5 px-3 pb-3 ${className ?? ''}`}
       onMouseMove={(e) => mouseX.set(e.clientX)}
       onMouseLeave={() => mouseX.set(Infinity)}

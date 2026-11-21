@@ -23,6 +23,7 @@ export const Glass = forwardRef(function Glass(
     blur = 4,
     tilt = 0,
     strong = false,
+    backdrop = false,
     className,
     style,
     children,
@@ -68,38 +69,53 @@ export const Glass = forwardRef(function Glass(
     };
   }, [enabled, radius, bezel]);
 
+  // Pointer highlight: measure once per hover, then update at most once per frame.
+  const rectRef = useRef(null);
+  const frameRef = useRef(0);
+
+  useEffect(() => () => cancelAnimationFrame(frameRef.current), []);
+
   const handleMove = (e) => {
     const el = localRef.current;
     if (el) {
-      const r = el.getBoundingClientRect();
+      if (!rectRef.current) rectRef.current = el.getBoundingClientRect();
+      const r = rectRef.current;
       const x = e.clientX - r.left;
       const y = e.clientY - r.top;
-      el.style.setProperty('--mx', `${x}px`);
-      el.style.setProperty('--my', `${y}px`);
-      if (tilt) {
-        const rx = ((y / r.height) - 0.5) * -tilt;
-        const ry = ((x / r.width) - 0.5) * tilt;
-        el.style.transform = `perspective(1100px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+      if (!frameRef.current) {
+        frameRef.current = requestAnimationFrame(() => {
+          frameRef.current = 0;
+          el.style.setProperty('--mx', `${x}px`);
+          el.style.setProperty('--my', `${y}px`);
+          if (tilt) {
+            const rx = (y / r.height - 0.5) * -tilt;
+            const ry = (x / r.width - 0.5) * tilt;
+            el.style.transform = `perspective(1100px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+          }
+        });
       }
     }
     onPointerMove?.(e);
   };
 
   const handleLeave = (e) => {
+    rectRef.current = null;
+    cancelAnimationFrame(frameRef.current);
+    frameRef.current = 0;
     if (tilt && localRef.current) localRef.current.style.transform = '';
     onPointerLeave?.(e);
   };
 
-  const backdrop = enabled && map ? `url(#${filterId}) blur(${blur}px) saturate(180%)` : undefined;
+  const refraction = enabled && map ? `url(#${filterId}) blur(${blur}px) saturate(180%)` : undefined;
 
   return (
     <Comp
       ref={setRefs}
-      className={cn('glass', strong && 'glass-strong', tilt && 'transition-transform duration-300 ease-out will-change-transform', className)}
+      className={cn('glass', strong && 'glass-strong', backdrop && 'glass-blur', tilt && 'transition-transform duration-300 ease-out will-change-transform', className)}
       style={{
         borderRadius: radius,
         ...style,
-        ...(backdrop && { backdropFilter: backdrop, WebkitBackdropFilter: backdrop }),
+        ...(refraction && { backdropFilter: refraction, WebkitBackdropFilter: refraction }),
       }}
       onPointerMove={handleMove}
       onPointerLeave={handleLeave}

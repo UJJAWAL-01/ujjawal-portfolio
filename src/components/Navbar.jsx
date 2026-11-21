@@ -78,10 +78,8 @@ export const Navbar = () => {
         className="fixed inset-x-0 top-4 z-50 hidden justify-center md:flex"
       >
         <Glass
-          refract
+          backdrop
           radius={30}
-          bezel={12}
-          strength={30}
           strong={scrolled}
           className={cn('flex items-center gap-1 py-1.5 pl-4 pr-1.5 transition-[padding] duration-500', scrolled && 'pl-3')}
         >
@@ -139,7 +137,7 @@ export const Navbar = () => {
 
       {/* Mobile: small top pill + bottom tab bar */}
       <header className="fixed inset-x-0 top-3 z-50 flex justify-center px-4 md:hidden">
-        <Glass radius={24} strong={scrolled} className="flex w-full items-center justify-between py-1 pl-4 pr-1">
+        <Glass backdrop radius={24} strong={scrolled} className="flex w-full items-center justify-between py-1 pl-4 pr-1">
           <a href="#hero" onClick={go('#hero')} className="flex items-center gap-2 text-[15px] font-semibold tracking-[-0.02em]">
             <Mark />
             {profile.name}
@@ -157,7 +155,7 @@ export const Navbar = () => {
         aria-label="Sections"
         className="fixed inset-x-0 bottom-0 z-50 flex justify-center px-4 pb-[max(12px,env(safe-area-inset-bottom))] md:hidden"
       >
-        <Glass refract radius={30} bezel={12} strength={26} strong className="flex w-full max-w-md items-center justify-between px-1.5 py-1.5">
+        <Glass backdrop radius={30} strong className="flex w-full max-w-md items-center justify-between px-1.5 py-1.5">
           {nav.map((l) => {
             const Icon = icons[l.icon];
             const isActive = active === l.href.slice(1);

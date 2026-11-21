@@ -107,7 +107,7 @@ export const CommandPalette = () => {
             onClick={(e) => e.stopPropagation()}
             role="dialog"
             aria-label="Command menu"
-            className="glass glass-strong w-full max-w-lg overflow-hidden rounded-[26px] shadow-2xl"
+            className="glass glass-strong glass-blur w-full max-w-lg overflow-hidden rounded-[26px] shadow-2xl"
           >
             <div className="flex items-center gap-3 border-b border-foreground/10 px-5 py-3.5">
               <Search size={15} className="shrink-0 text-muted-foreground" />

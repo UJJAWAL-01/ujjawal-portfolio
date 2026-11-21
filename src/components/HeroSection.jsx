@@ -48,8 +48,8 @@ const FocusName = ({ text }) => (
 );
 
 const rise = (delay) => ({
-  initial: { opacity: 0, y: 18, filter: 'blur(8px)' },
-  animate: { opacity: 1, y: 0, filter: 'blur(0px)', transitionEnd: { filter: 'none' } },
+  initial: { opacity: 0, y: 18 },
+  animate: { opacity: 1, y: 0 },
   transition: { duration: 0.9, delay, ease },
 });
 
@@ -112,7 +112,7 @@ export const HeroSection = () => {
         <motion.div {...rise(0.05)} className="flex justify-center">
           <Glass radius={999} className="inline-flex items-center gap-2 px-3.5 py-1.5 text-[13px] font-medium text-foreground/80">
             <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-50" />
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-50 [animation-iteration-count:3] [animation-fill-mode:forwards]" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
             </span>
             {profile.availability}
@@ -123,11 +123,7 @@ export const HeroSection = () => {
           <FocusName text={profile.name} />
         </div>
 
-        <motion.p {...rise(0.75)} className="mt-5 text-[26px] font-semibold tracking-[-0.03em] md:text-[36px]">
-          <span className="text-shine">{hero.role}</span>
-        </motion.p>
-
-        <motion.p {...rise(0.9)} className="mx-auto mt-5 max-w-2xl text-[17px] leading-relaxed text-muted-foreground md:text-[20px]">
+        <motion.p {...rise(0.75)} className="mx-auto mt-7 max-w-2xl text-[17px] leading-relaxed text-muted-foreground md:text-[20px]">
           {hero.lede}
         </motion.p>
         <motion.p {...rise(1)} className="meta mx-auto mt-2 max-w-2xl">
@@ -150,7 +146,7 @@ export const HeroSection = () => {
           type="button"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1, y: [0, 6, 0] }}
-          transition={{ opacity: { delay: 2 }, y: { duration: 2.2, repeat: Infinity, ease: 'easeInOut' } }}
+          transition={{ opacity: { delay: 2 }, y: { duration: 2.2, repeat: 3, ease: 'easeInOut', delay: 2 } }}
           onClick={() => smoothScrollTo('#work')}
           aria-label="Scroll to work"
           className="text-foreground/40 transition-colors hover:text-foreground"

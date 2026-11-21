@@ -19,7 +19,6 @@ export const profile = {
 };
 
 export const hero = {
-  role: 'Data Engineer',
   lede:
     'Data engineer at the Texas A&M Transportation Institute, working on geospatial pipelines, data platforms, and agent-assisted engineering.',
   sub: 'MS in Management Information Systems at Texas A&M, graduating May 2027.',

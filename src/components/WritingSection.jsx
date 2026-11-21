@@ -17,7 +17,6 @@ export const WritingSection = () => (
             target="_blank"
             rel="noopener noreferrer"
             radius={30}
-            tilt={2}
             className="group block p-7 md:p-10"
           >
             <div className="flex items-center justify-between gap-4">

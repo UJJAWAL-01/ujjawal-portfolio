@@ -111,7 +111,7 @@ const Project = ({ project, index }) => {
       viewport={{ once: true, margin: '-100px' }}
       transition={{ duration: 1, ease }}
     >
-      <Glass radius={34} tilt={1.5} className="p-6 sm:p-8 md:p-12">
+      <Glass radius={34} className="p-6 sm:p-8 md:p-12">
         <div className={cn('grid items-start gap-10 lg:grid-cols-2 lg:gap-14', flip && 'lg:[&>*:first-child]:order-2')}>
           <div>
             <div className="flex flex-wrap items-center gap-2">

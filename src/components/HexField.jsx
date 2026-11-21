@@ -80,6 +80,10 @@ export const HexField = ({
     let raf = 0;
     let visible = true;
     let hover = -1;
+    let dpr = 1;
+    let base = null; // cached terrain for the static (non-animated) case
+    let moveFrame = 0;
+    let canvasRect = null;
     const r = cell;
     const hw = Math.sqrt(3) * r; // horizontal spacing
     const vh = 1.5 * r; // vertical spacing
@@ -94,7 +98,7 @@ export const HexField = ({
       const rect = wrap.getBoundingClientRect();
       width = rect.width;
       height = rect.height;
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
       canvas.width = Math.round(width * dpr);
       canvas.height = Math.round(height * dpr);
       canvas.style.width = `${width}px`;
@@ -111,6 +115,7 @@ export const HexField = ({
           cells.push({ x, y, row, col, e: 0 });
         }
       }
+      if (!shouldAnimate) renderBase();
     };
 
     const elevation = (x, y) => {
@@ -118,8 +123,7 @@ export const HexField = ({
       return Math.min(1, Math.max(0, (n - 0.22) / 0.56));
     };
 
-    const draw = () => {
-      ctx.clearRect(0, 0, width, height);
+    const paintTerrain = (c2d) => {
       for (let i = 0; i < cells.length; i++) {
         const c = cells[i];
         const e = elevation(c.x, c.y);
@@ -132,12 +136,35 @@ export const HexField = ({
           const h = (e - WATER) / (1 - WATER);
           fill = `hsla(${colors.fg}, ${0.03 + Math.pow(h, 1.5) * 0.15})`;
         }
-        ctx.beginPath();
-        ctx.moveTo(c.x + corners[0][0], c.y + corners[0][1]);
-        for (let k = 1; k < 6; k++) ctx.lineTo(c.x + corners[k][0], c.y + corners[k][1]);
-        ctx.closePath();
-        ctx.fillStyle = fill;
-        ctx.fill();
+        c2d.beginPath();
+        c2d.moveTo(c.x + corners[0][0], c.y + corners[0][1]);
+        for (let k = 1; k < 6; k++) c2d.lineTo(c.x + corners[k][0], c.y + corners[k][1]);
+        c2d.closePath();
+        c2d.fillStyle = fill;
+        c2d.fill();
+      }
+    };
+
+    // Static terrain is painted once into an offscreen canvas; hovering only
+    // copies it back and outlines one cell.
+    const renderBase = () => {
+      base = document.createElement('canvas');
+      base.width = canvas.width;
+      base.height = canvas.height;
+      const bctx = base.getContext('2d');
+      bctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      paintTerrain(bctx);
+    };
+
+    const draw = () => {
+      if (shouldAnimate || !base) {
+        ctx.clearRect(0, 0, width, height);
+        paintTerrain(ctx);
+      } else {
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(base, 0, 0);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       }
 
       if (hover >= 0 && cells[hover]) {
@@ -154,10 +181,13 @@ export const HexField = ({
           const elev = Math.round(80 + c.e * 420);
           const low = c.e < WATER;
           const depth = low ? ((WATER - c.e) * 14).toFixed(1) : null;
-          tip.textContent = low
+          const text = low
             ? `cell ${c.row},${c.col}  ·  ${elev} m  ·  depression, ${depth} m deep`
             : `cell ${c.row},${c.col}  ·  ${elev} m`;
-          const tx = Math.min(c.x + 14, width - tip.offsetWidth - 8);
+          tip.textContent = text;
+          // estimate width instead of measuring, so hovering never forces layout
+          const tipWidth = text.length * 6.7 + 18;
+          const tx = Math.min(c.x + 14, width - tipWidth - 8);
           const ty = c.y < 40 ? c.y + 18 : c.y - 34;
           tip.style.transform = `translate(${Math.max(8, tx)}px, ${ty}px)`;
           tip.style.opacity = '1';
@@ -194,15 +224,28 @@ export const HexField = ({
       return bestD <= r * r ? best : -1;
     };
 
+    const onEnter = () => {
+      canvasRect = canvas.getBoundingClientRect();
+    };
+    const onScroll = () => {
+      canvasRect = null; // re-measured lazily on the next pointer move
+    };
     const onMove = (e) => {
-      const rect = canvas.getBoundingClientRect();
-      const next = pick(e.clientX - rect.left, e.clientY - rect.top);
-      if (next !== hover) {
-        hover = next;
-        if (!shouldAnimate) draw();
-      }
+      if (!canvasRect) canvasRect = canvas.getBoundingClientRect();
+      const px = e.clientX - canvasRect.left;
+      const py = e.clientY - canvasRect.top;
+      if (moveFrame) return;
+      moveFrame = requestAnimationFrame(() => {
+        moveFrame = 0;
+        const next = pick(px, py);
+        if (next !== hover) {
+          hover = next;
+          if (!shouldAnimate) draw();
+        }
+      });
     };
     const onLeave = () => {
+      canvasRect = null;
       hover = -1;
       if (!shouldAnimate) draw();
     };
@@ -224,19 +267,25 @@ export const HexField = ({
     // Re-read theme colors whenever the light/dark class on <html> changes
     const mo = new MutationObserver(() => {
       colors = { fg: readVar('--foreground'), accent: readVar('--accent') };
+      if (!shouldAnimate) renderBase();
       draw();
     });
     mo.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
 
     if (interactive) {
+      canvas.addEventListener('pointerenter', onEnter);
       canvas.addEventListener('pointermove', onMove);
       canvas.addEventListener('pointerdown', onMove);
       canvas.addEventListener('pointerleave', onLeave);
+      window.addEventListener('scroll', onScroll, { passive: true });
     }
     if (shouldAnimate) raf = requestAnimationFrame(loop);
 
     return () => {
       cancelAnimationFrame(raf);
+      cancelAnimationFrame(moveFrame);
+      window.removeEventListener('scroll', onScroll);
+      canvas.removeEventListener('pointerenter', onEnter);
       ro.disconnect();
       io.disconnect();
       mo.disconnect();

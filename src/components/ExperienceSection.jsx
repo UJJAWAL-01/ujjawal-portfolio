@@ -8,7 +8,7 @@ const Job = ({ job, index }) => (
   <Reveal delay={index * 0.05} className="relative pl-10 md:pl-14">
     {/* timeline node */}
     <span className="absolute left-[11px] top-9 flex h-4 w-4 -translate-x-1/2 items-center justify-center md:left-[19px]">
-      {job.current && <span className="absolute h-4 w-4 animate-ping rounded-full bg-accent/40" />}
+      {job.current && <span className="absolute h-4 w-4 animate-ping rounded-full bg-accent/40 [animation-iteration-count:3]" />}
       <span className={`relative h-3 w-3 rounded-full ring-4 ring-background ${job.current ? 'bg-accent' : 'bg-foreground/30'}`} />
     </span>
 
