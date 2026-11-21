@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { Sparkles, ArrowUpRight } from 'lucide-react';
+import { Sparkles, ArrowUpRight, Lock } from 'lucide-react';
 import { work } from '../content';
 import { HexField } from './HexField';
 import { Glass } from './glass/Glass';
@@ -24,6 +24,40 @@ const Screenshot = ({ url, title }) => {
   );
 };
 
+const lights = [
+  { bg: '#ff5f57', glyph: '×' },
+  { bg: '#febc2e', glyph: '−' },
+  { bg: '#28c840', glyph: '+' },
+];
+
+/** Browser-window chrome: window dots plus an address bar linking to the live site. */
+const WindowBar = ({ frame }) => (
+  <div className="flex h-10 items-center gap-3 border-b border-foreground/[0.07] bg-[var(--glass-fill-strong)] px-3.5">
+    <div className="group/lights flex w-[54px] shrink-0 gap-2" aria-hidden="true">
+      {lights.map((l) => (
+        <span
+          key={l.bg}
+          className="flex h-3 w-3 items-center justify-center rounded-full text-[10px] font-bold leading-none text-black/0 shadow-[inset_0_0_0_0.5px_rgba(0,0,0,0.18)] transition-colors group-hover/lights:text-black/55"
+          style={{ background: l.bg }}
+        >
+          {l.glyph}
+        </span>
+      ))}
+    </div>
+    <a
+      href={frame.href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="mx-auto flex min-w-0 max-w-[75%] items-center gap-1.5 rounded-lg bg-foreground/[0.05] px-3 py-1 text-[12px] text-muted-foreground transition-colors hover:bg-foreground/[0.08] hover:text-foreground"
+      aria-label={`Open ${frame.label}`}
+    >
+      <Lock size={11} className="shrink-0" />
+      <span className="truncate">{frame.label}</span>
+    </a>
+    <span className="w-[54px] shrink-0" aria-hidden="true" />
+  </div>
+);
+
 const Visual = ({ project }) => {
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] });
@@ -32,17 +66,20 @@ const Visual = ({ project }) => {
 
   return (
     <motion.div ref={ref} style={{ y, rotate }} className="relative">
-      <div className="relative aspect-[16/11] overflow-hidden rounded-[22px] bg-card shadow-[0_30px_60px_-28px_rgba(60,40,10,0.35)] ring-1 ring-foreground/[0.06]">
-        {project.visual === 'hex' ? (
-          <>
-            <HexField className="absolute inset-0" cell={12} seed={23} scale={0.013} animate={false} />
-            <span className="absolute bottom-3 left-3 rounded-full bg-card/85 px-2.5 py-1 text-[12px] font-medium text-muted-foreground backdrop-blur">
-              Hover the hexagons
-            </span>
-          </>
-        ) : (
-          <Screenshot url={project.shotUrl} title={project.title} />
-        )}
+      <div className="overflow-hidden rounded-[18px] bg-card shadow-[0_30px_60px_-28px_rgba(60,40,10,0.35)] ring-1 ring-foreground/[0.07]">
+        {project.frame && <WindowBar frame={project.frame} />}
+        <div className="relative aspect-[16/10]">
+          {project.visual === 'hex' ? (
+            <>
+              <HexField className="absolute inset-0" cell={12} seed={23} scale={0.013} animate={false} />
+              <span className="absolute bottom-3 left-3 rounded-full bg-card/85 px-2.5 py-1 text-[12px] font-medium text-muted-foreground backdrop-blur">
+                Hover the hexagons
+              </span>
+            </>
+          ) : (
+            <Screenshot url={project.shotUrl} title={project.title} />
+          )}
+        </div>
       </div>
     </motion.div>
   );

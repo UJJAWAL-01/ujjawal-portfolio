@@ -60,6 +60,7 @@ export const work = [
       { label: 'Dataset DOI', href: 'https://doi.org/10.5281/zenodo.24382887' },
     ],
     visual: 'hex',
+    frame: { label: 'ujjawal-01.github.io/h3-lowpoints', href: 'https://ujjawal-01.github.io/h3-lowpoints/explorer/' },
   },
   {
     id: 'nexus',
@@ -80,6 +81,7 @@ export const work = [
     links: [{ label: 'Visit the live site', href: 'https://nexus-trading-nine.vercel.app/', primary: true }],
     visual: 'screenshot',
     shotUrl: 'https://nexus-trading-nine.vercel.app/',
+    frame: { label: 'nexus-trading-nine.vercel.app', href: 'https://nexus-trading-nine.vercel.app/' },
   },
 ];
 
