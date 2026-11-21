@@ -1,57 +1,47 @@
-import "./App.css";
+import { MotionConfig } from 'framer-motion';
 import { ThemeProvider } from './context/ThemeContext';
-import { MotionProvider } from './context/MotionContext';
+import { Aurora } from './components/glass/Aurora';
+import { Island } from './components/glass/Island';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
-import { AboutSection } from './components/AboutSection';
-import { EducationSection } from './components/EducationSection';
-import { SkillsSection } from './components/SkillsSection';
-import { ProjectsSection } from './components/ProjectsSection';
-import { ResearchSection } from './components/ResearchSection';
+import { WorkSection } from './components/WorkSection';
 import { ExperienceSection } from './components/ExperienceSection';
-import { CertificationsSection } from './components/CertificationsSection';
-import { RecommendationsSection } from './components/RecommendationsSection';
+import { WritingSection } from './components/WritingSection';
+import { SideWorkSection } from './components/SideWorkSection';
+import { StackSection } from './components/StackSection';
+import { AboutSection } from './components/AboutSection';
+import { RecommendationSection } from './components/RecommendationSection';
 import { ContactSection } from './components/ContactSection';
 import { Footer } from './components/Footer';
-import { CustomCursor } from './components/CustomCursor';
 import { SmoothScroll } from './components/SmoothScroll';
-import { ScrollProgress } from './components/ScrollProgress';
-import { StatusBar } from './components/StatusBar';
 import { CommandPalette } from './components/CommandPalette';
 
 function App() {
   return (
     <ThemeProvider>
-      <MotionProvider>
-        <div className="App min-h-screen bg-background text-foreground relative overflow-x-hidden scanlines pb-7">
-          {/* Scroll + interaction layer */}
+      <MotionConfig reducedMotion="user">
+        <Aurora />
+        <div className="relative min-h-screen text-foreground">
           <SmoothScroll />
-          <ScrollProgress />
-          <CustomCursor />
-          <StatusBar />
           <CommandPalette />
-
-          {/* Navigation */}
+          <Island />
           <Navbar />
 
-          {/* Main Content */}
           <main>
             <HeroSection />
-            <AboutSection />
-            <EducationSection />
-            <SkillsSection />
-            <ProjectsSection />
-            <ResearchSection />
+            <WorkSection />
             <ExperienceSection />
-            <CertificationsSection />
-            <RecommendationsSection />
+            <WritingSection />
+            <SideWorkSection />
+            <StackSection />
+            <AboutSection />
+            <RecommendationSection />
             <ContactSection />
           </main>
 
-          {/* Footer */}
           <Footer />
         </div>
-      </MotionProvider>
+      </MotionConfig>
     </ThemeProvider>
   );
 }

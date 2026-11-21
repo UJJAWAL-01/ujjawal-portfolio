@@ -1,28 +1,23 @@
 import { useEffect } from 'react';
 import Lenis from 'lenis';
-import { useMotionPref } from '../context/MotionContext';
+import { sectionIds } from '../content';
 
-const SECTION_IDS = [
-  'hero', 'about', 'education', 'skills', 'projects', 'research',
-  'experience', 'certifications', 'recommendations', 'contact',
-];
+const NAV_OFFSET = -56;
 
 /**
- * Initializes Lenis smooth scrolling and global keyboard navigation.
- * - j / k (or arrows): jump between sections
- * - g / G: top / bottom
- * Respects reduced-motion: falls back to native instant scrolling.
+ * Lenis smooth scrolling plus keyboard navigation:
+ * j / k jump between sections, g / G go to top / bottom.
+ * Falls back to native scrolling when the OS asks for reduced motion.
  */
 export const SmoothScroll = () => {
-  const { reducedMotion } = useMotionPref();
-
   useEffect(() => {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let lenis = null;
     let rafId = null;
 
-    if (!reducedMotion) {
+    if (!reduce) {
       lenis = new Lenis({
-        duration: 1.1,
+        duration: 1.05,
         easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         smoothWheel: true,
       });
@@ -34,16 +29,10 @@ export const SmoothScroll = () => {
       rafId = requestAnimationFrame(raf);
     }
 
-    const scrollToEl = (el) => {
-      if (!el) return;
-      if (lenis) lenis.scrollTo(el, { offset: -10 });
-      else el.scrollIntoView({ behavior: 'auto' });
-    };
-
     const currentIndex = () => {
       const mid = window.scrollY + window.innerHeight / 2;
       let idx = 0;
-      SECTION_IDS.forEach((id, i) => {
+      sectionIds.forEach((id, i) => {
         const el = document.getElementById(id);
         if (el && el.offsetTop <= mid) idx = i;
       });
@@ -52,38 +41,40 @@ export const SmoothScroll = () => {
 
     const onKey = (e) => {
       const tag = e.target?.tagName;
-      if (tag === 'INPUT' || tag === 'TEXTAREA' || e.metaKey || e.ctrlKey) return;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || e.metaKey || e.ctrlKey || e.altKey) return;
+      if (document.querySelector('[role="dialog"]')) return;
 
-      if (e.key === 'j' || e.key === 'ArrowDown') {
-        e.preventDefault();
-        const next = Math.min(currentIndex() + 1, SECTION_IDS.length - 1);
-        scrollToEl(document.getElementById(SECTION_IDS[next]));
-      } else if (e.key === 'k' || e.key === 'ArrowUp') {
-        e.preventDefault();
-        const prev = Math.max(currentIndex() - 1, 0);
-        scrollToEl(document.getElementById(SECTION_IDS[prev]));
-      } else if (e.key === 'g') {
-        scrollToEl(document.getElementById('hero'));
-      } else if (e.key === 'G') {
-        scrollToEl(document.getElementById('contact'));
-      }
+      let target = null;
+      if (e.key === 'j') target = sectionIds[Math.min(currentIndex() + 1, sectionIds.length - 1)];
+      else if (e.key === 'k') target = sectionIds[Math.max(currentIndex() - 1, 0)];
+      else if (e.key === 'g') target = 'hero';
+      else if (e.key === 'G') target = 'contact';
+      if (target) smoothScrollTo(`#${target}`);
     };
 
     window.addEventListener('keydown', onKey);
     return () => {
       window.removeEventListener('keydown', onKey);
       if (rafId) cancelAnimationFrame(rafId);
-      if (lenis) { lenis.destroy(); window.__lenis = null; }
+      if (lenis) {
+        lenis.destroy();
+        window.__lenis = null;
+      }
     };
-  }, [reducedMotion]);
+  }, []);
 
   return null;
 };
 
-/** Helper other components can call to scroll to a hash target via Lenis. */
+/** Scroll to a section, accounting for the fixed nav. */
 export const smoothScrollTo = (selector) => {
   const el = document.querySelector(selector);
   if (!el) return;
-  if (window.__lenis) window.__lenis.scrollTo(el, { offset: -10 });
-  else el.scrollIntoView({ behavior: 'smooth' });
+  if (selector === '#hero') {
+    if (window.__lenis) window.__lenis.scrollTo(0);
+    else window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
+  if (window.__lenis) window.__lenis.scrollTo(el, { offset: NAV_OFFSET });
+  else window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY + NAV_OFFSET, behavior: 'smooth' });
 };

@@ -1,154 +1,117 @@
-import { motion, useInView } from 'framer-motion';
-import { useRef, useState } from 'react';
-import { Send, Loader2, CheckCircle, AlertCircle, Linkedin, Github, Mail, MapPin } from 'lucide-react';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Textarea } from './ui/textarea';
-import { Panel } from './ui/panel';
-import { SectionHeader } from './ui/section-header';
-import { AmbientField } from './three/AmbientField';
+import { useState } from 'react';
+import { Loader2, Copy, Send } from 'lucide-react';
+import { contact, profile } from '../content';
+import { Glass } from './glass/Glass';
+import { Dock } from './glass/Dock';
+import { notify } from './glass/Island';
+import { Section, Reveal, WordReveal } from './ui/section';
 
-const channels = [
-  { label: 'EMAIL', value: 'ujjawal.patel@tamu.edu', href: 'mailto:ujjawal.patel@tamu.edu', icon: Mail },
-  { label: 'LINKEDIN', value: '/in/ujjawal-patel', href: 'https://www.linkedin.com/in/ujjawal-patel-7508b8199/', icon: Linkedin },
-  { label: 'GITHUB', value: '/UJJAWAL-01', href: 'https://github.com/UJJAWAL-01', icon: Github },
-  { label: 'LOCATION', value: 'College Station, TX', href: null, icon: MapPin },
-];
+const field =
+  'mt-1.5 w-full rounded-2xl border-0 bg-[var(--glass-fill)] px-4 py-3 text-[15px] text-foreground shadow-[var(--glass-inner),inset_0_0_0_1px_hsl(var(--foreground)/0.06)] outline-none transition-shadow placeholder:text-faint focus:shadow-[var(--glass-inner),inset_0_0_0_2px_hsl(var(--accent)/0.6)]';
 
 export const ContactSection = () => {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: '-100px' });
-  const [formState, setFormState] = useState('idle');
-  const [formData, setFormData] = useState({ name: '', message: '' });
+  const [state, setState] = useState('idle');
+  const [form, setForm] = useState({ name: '', email: '', message: '' });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setFormState('loading');
+  const copy = async () => {
     try {
-      const response = await fetch('https://formspree.io/f/xpwjypyl', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-      if (response.ok) {
-        setFormState('success');
-        setFormData({ name: '', message: '' });
-        setTimeout(() => setFormState('idle'), 3000);
-      } else {
-        setFormState('error');
-        setTimeout(() => setFormState('idle'), 3000);
-      }
+      await navigator.clipboard.writeText(profile.email);
+      notify('Email copied');
     } catch {
-      setFormState('error');
-      setTimeout(() => setFormState('idle'), 3000);
+      window.location.href = `mailto:${profile.email}`;
+    }
+  };
+
+  const submit = async (e) => {
+    e.preventDefault();
+    setState('loading');
+    try {
+      const res = await fetch('https://formspree.io/f/xpwjypyl', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) throw new Error('send failed');
+      setState('idle');
+      setForm({ name: '', email: '', message: '' });
+      notify('Message sent. Thank you!');
+    } catch {
+      setState('error');
+      setTimeout(() => setState('idle'), 4000);
     }
   };
 
   return (
-    <section id="contact" className="py-20 md:py-32 relative overflow-hidden" ref={ref} data-testid="contact-section">
-      <AmbientField />
-      <div className="absolute inset-0 grid-bg grid-bg-fade opacity-[0.15] pointer-events-none" />
+    <Section id="contact" className="pb-32 md:pb-28">
+      <div className="mx-auto max-w-5xl">
+        <div className="text-center">
+          <Reveal as="p" y={10} className="eyebrow">Contact</Reveal>
+          <WordReveal
+            text={contact.heading + '.'}
+            className="mt-3 text-[44px] font-semibold leading-[1] tracking-[-0.045em] md:text-[80px]"
+          />
+          <Reveal as="p" delay={0.1} className="mx-auto mt-5 max-w-xl text-[17px] leading-relaxed text-muted-foreground md:text-[19px]">
+            {contact.body}
+          </Reveal>
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        <SectionHeader
-          index="09"
-          code="~/contact"
-          meta="available"
-          status="active"
-          title={<>Get in <span className="gradient-text">Touch</span></>}
-          subtitle="Open to Summer 2026 internships and full-time early-career analyst and data roles."
-        />
+          <Reveal delay={0.2} className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <a
+              href={`mailto:${profile.email}`}
+              className="text-[22px] font-semibold tracking-[-0.03em] text-foreground underline decoration-accent/40 decoration-2 underline-offset-[6px] transition-colors hover:decoration-accent md:text-[28px]"
+            >
+              {profile.email}
+            </a>
+            <button
+              type="button"
+              onClick={copy}
+              aria-label="Copy email address"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--glass-fill-strong)] text-foreground/70 shadow-[var(--glass-inner),0_1px_3px_rgba(0,0,0,0.08)] transition-transform hover:scale-110 hover:text-foreground active:scale-95"
+            >
+              <Copy size={16} />
+            </button>
+          </Reveal>
 
-        <div className="grid md:grid-cols-5 gap-6 items-start">
-          {/* Channels */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="md:col-span-2"
-          >
-            <Panel title="Contact" status="available" tone="active">
-              <div className="space-y-1">
-                {channels.map((c) => {
-                  const Row = (
-                    <div className="flex items-center gap-3 py-2.5 border-b border-border/50 last:border-0 group">
-                      <c.icon size={16} className="text-primary shrink-0" />
-                      <div className="min-w-0">
-                        <div className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">{c.label}</div>
-                        <div className="text-sm text-foreground/90 truncate group-hover:text-primary transition-colors">{c.value}</div>
-                      </div>
-                    </div>
-                  );
-                  return c.href ? (
-                    <a key={c.label} href={c.href} target={c.href.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer" className="block">
-                      {Row}
-                    </a>
-                  ) : (
-                    <div key={c.label}>{Row}</div>
-                  );
-                })}
+          <Reveal delay={0.28} className="mt-8 flex justify-center">
+            <Dock />
+          </Reveal>
+        </div>
+
+        <Reveal delay={0.1} className="mx-auto mt-14 max-w-3xl">
+          <Glass radius={32} className="p-6 md:p-9">
+            <form onSubmit={submit} className="space-y-4" data-testid="contact-form">
+              <p className="text-[17px] font-semibold tracking-[-0.02em]">Or leave a note</p>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <label className="block">
+                  <span className="meta font-medium">Name</span>
+                  <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={field} autoComplete="name" />
+                </label>
+                <label className="block">
+                  <span className="meta font-medium">Email</span>
+                  <input required type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className={field} autoComplete="email" />
+                </label>
               </div>
-            </Panel>
-          </motion.div>
-
-          {/* Message form */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="md:col-span-3"
-          >
-            <Panel title="Message" status="">
-              <form onSubmit={handleSubmit} className="space-y-5" data-testid="contact-form">
-                <div className="space-y-2">
-                  <label htmlFor="name" className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-                    Name
-                  </label>
-                  <Input
-                    id="name"
-                    name="name"
-                    type="text"
-                    placeholder="Your name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    required
-                    className="rounded-md font-mono"
-                    data-testid="contact-name-input"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label htmlFor="message" className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-                    Message
-                  </label>
-                  <Textarea
-                    id="message"
-                    name="message"
-                    placeholder="Type your message…"
-                    value={formData.message}
-                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    required
-                    rows={5}
-                    className="rounded-md resize-none font-mono"
-                    data-testid="contact-message-input"
-                  />
-                </div>
-                <Button
+              <label className="block">
+                <span className="meta font-medium">Message</span>
+                <textarea required rows={5} value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} className={`${field} resize-none`} />
+              </label>
+              <div className="flex flex-wrap items-center gap-4">
+                <button
                   type="submit"
-                  size="lg"
-                  className="w-full rounded-md gap-2 font-mono uppercase tracking-wider glow-primary"
-                  disabled={formState === 'loading'}
+                  disabled={state === 'loading'}
+                  className="inline-flex h-11 items-center gap-2 rounded-full bg-primary px-6 text-[15px] font-medium text-primary-foreground transition-transform hover:scale-[1.03] active:scale-95 disabled:opacity-60"
                   data-testid="contact-submit-btn"
                 >
-                  {formState === 'loading' && (<><Loader2 size={18} className="animate-spin" /> Sending…</>)}
-                  {formState === 'success' && (<><CheckCircle size={18} /> Message sent</>)}
-                  {formState === 'error' && (<><AlertCircle size={18} /> Failed, retry</>)}
-                  {formState === 'idle' && (<><Send size={18} /> Send Message</>)}
-                </Button>
-              </form>
-            </Panel>
-          </motion.div>
-        </div>
+                  {state === 'loading' ? <Loader2 size={16} className="animate-spin" /> : <Send size={15} />}
+                  {state === 'loading' ? 'Sending' : 'Send message'}
+                </button>
+                {state === 'error' && (
+                  <span className="meta text-destructive">That didn&rsquo;t go through. Email works too.</span>
+                )}
+              </div>
+            </form>
+          </Glass>
+        </Reveal>
       </div>
-    </section>
+    </Section>
   );
 };

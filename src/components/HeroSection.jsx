@@ -1,212 +1,163 @@
-import { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Linkedin, Github, Mail, FileText, ChevronDown } from 'lucide-react';
-import { Button } from './ui/button';
-import { ScrambleText } from './ScrambleText';
-import { DataField } from './three/DataField';
-import { useMotionPref } from '../context/MotionContext';
+import { useEffect, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
+import { ChevronDown } from 'lucide-react';
+import { hero, profile } from '../content';
+import { Glass } from './glass/Glass';
+import { Dock } from './glass/Dock';
+import { LiquidLens } from './glass/LiquidLens';
 import { smoothScrollTo } from './SmoothScroll';
-import resume from '../assets/Resume_2026.pdf';
+import { ease } from './ui/section';
+import { cn } from '../lib/utils';
 
-const BOOT_LINES = [
-  '> ujjawal_terminal v2.7  (c) 2026',
-  '> LOGIN: guest',
-  '> AUTHENTICATING ............... OK',
-  '> ACCESS GRANTED',
-  '> loading sources [ txdot · markets · bi ] ... ok',
-  '> launching profile: ujjawal.patel',
-];
+const localTime = () =>
+  new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: profile.timezone });
 
-const BootOverlay = ({ onDone }) => {
-  const [lines, setLines] = useState([]);
-  const [typed, setTyped] = useState('');
-
+const Clock = () => {
+  const [time, setTime] = useState(localTime);
   useEffect(() => {
-    let li = 0;
-    let ci = 0;
-    let timer;
-
-    const step = () => {
-      if (li >= BOOT_LINES.length) {
-        timer = setTimeout(onDone, 400);
-        return;
-      }
-      const current = BOOT_LINES[li];
-      if (ci <= current.length) {
-        setTyped(current.slice(0, ci));
-        ci += 1;
-        timer = setTimeout(step, 14);
-      } else {
-        setLines((prev) => [...prev, current]);
-        setTyped('');
-        li += 1;
-        ci = 0;
-        timer = setTimeout(step, 90);
-      }
-    };
-    step();
-    return () => clearTimeout(timer);
-  }, [onDone]);
-
-  return (
-    <motion.div
-      initial={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.5 }}
-      className="absolute inset-0 z-30 flex items-center justify-center bg-background"
-    >
-      <div className="font-mono text-sm md:text-base text-primary/90 px-6 w-full max-w-xl">
-        {lines.map((l, i) => (
-          <div key={i} className="whitespace-pre">{l}</div>
-        ))}
-        <div className="whitespace-pre">
-          {typed}
-          <span className="caret-blink text-accent">▋</span>
-        </div>
-      </div>
-    </motion.div>
-  );
+    const id = setInterval(() => setTime(localTime()), 30_000);
+    return () => clearInterval(id);
+  }, []);
+  return <span className="tabular-nums">{time} CT</span>;
 };
 
+/** Name that comes into focus one letter at a time. */
+const FocusName = ({ text }) => (
+  <motion.h1
+    initial="hidden"
+    animate="show"
+    transition={{ staggerChildren: 0.035, delayChildren: 0.25 }}
+    aria-label={text}
+    className="text-[52px] font-semibold leading-[0.95] tracking-[-0.05em] sm:text-[80px] md:text-[112px] lg:text-[128px]"
+    data-testid="hero-name"
+  >
+    {text.split('').map((ch, i) => (
+      <motion.span
+        key={i}
+        aria-hidden="true"
+        className="inline-block"
+        variants={{
+          hidden: { opacity: 0, y: '0.25em', filter: 'blur(14px)' },
+          show: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0.9, ease } },
+        }}
+      >
+        {ch === ' ' ? ' ' : ch}
+      </motion.span>
+    ))}
+  </motion.h1>
+);
+
+const rise = (delay) => ({
+  initial: { opacity: 0, y: 18, filter: 'blur(8px)' },
+  animate: { opacity: 1, y: 0, filter: 'blur(0px)', transitionEnd: { filter: 'none' } },
+  transition: { duration: 0.9, delay, ease },
+});
+
+const NowStrip = () => (
+  <Glass radius={26} className="grid grid-cols-2 overflow-hidden lg:grid-cols-4">
+    {hero.now.map((item, i) => {
+      const body = (
+        <>
+          <span className="meta">{item.label}</span>
+          <span className="mt-1 block text-[15px] font-semibold tracking-[-0.015em] text-foreground">{item.value}</span>
+          <span className="block text-[13px] text-muted-foreground">
+            {item.clock ? (
+              <>
+                {item.note} · <Clock />
+              </>
+            ) : (
+              item.note
+            )}
+          </span>
+        </>
+      );
+      const cls = cn(
+        'block px-5 py-4 text-left',
+        i % 2 === 1 && 'border-l border-foreground/[0.07]',
+        i >= 2 && 'border-t border-foreground/[0.07] lg:border-t-0',
+        i === 2 && 'lg:border-l'
+      );
+      return item.href ? (
+        <a
+          key={item.label}
+          href={item.href}
+          onClick={(e) => {
+            e.preventDefault();
+            smoothScrollTo(item.href);
+          }}
+          className={cn(cls, 'transition-colors hover:bg-white/25 dark:hover:bg-white/5')}
+        >
+          {body}
+        </a>
+      ) : (
+        <div key={item.label} className={cls}>
+          {body}
+        </div>
+      );
+    })}
+  </Glass>
+);
+
 export const HeroSection = () => {
-  const { cinematic } = useMotionPref();
-  const [booting, setBooting] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    return sessionStorage.getItem('booted') !== 'true';
-  });
-
-  // Skip boot entirely outside cinematic mode.
-  const showBoot = booting && cinematic;
-
-  useEffect(() => {
-    if (!cinematic && booting) setBooting(false);
-  }, [cinematic, booting]);
-
-  const finishBoot = () => {
-    sessionStorage.setItem('booted', 'true');
-    setBooting(false);
-  };
-
-  const contentDelay = showBoot ? 0 : 0; // content animates in after boot unmounts
+  const ref = useRef(null);
 
   return (
     <section
       id="hero"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden"
+      ref={ref}
+      className="relative flex min-h-[100svh] flex-col justify-center overflow-hidden pb-24 pt-28 md:pb-16 md:pt-32"
       data-testid="hero-section"
     >
-      {/* 3D data field */}
-      <DataField />
+      <div className="container-page relative text-center">
+        <motion.div {...rise(0.05)} className="flex justify-center">
+          <Glass radius={999} className="inline-flex items-center gap-2 px-3.5 py-1.5 text-[13px] font-medium text-foreground/80">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-50" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
+            </span>
+            {profile.availability}
+          </Glass>
+        </motion.div>
 
-      {/* blueprint grid + vignette */}
-      <div className="absolute inset-0 grid-bg grid-bg-fade opacity-40 pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-transparent to-background pointer-events-none" />
-      {/* center scrim: light touch so the field stays full behind the copy */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            'radial-gradient(ellipse 44% 38% at 50% 44%, hsl(var(--background) / 0.62) 0%, hsl(var(--background) / 0.3) 50%, transparent 76%)',
-        }}
-      />
-
-      <AnimatePresence>
-        {showBoot && <BootOverlay onDone={finishBoot} />}
-      </AnimatePresence>
-
-      {/* Content */}
-      {!showBoot && (
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          <div className="text-center">
-            <motion.p
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: contentDelay }}
-              className="kicker mb-5"
-            >
-              [ signal from noise ]
-            </motion.p>
-
-            <h1
-              className="text-5xl md:text-7xl lg:text-8xl font-display font-bold tracking-tight mb-6"
-              data-testid="hero-name"
-            >
-              <ScrambleText text="Ujjawal" delay={150} className="text-foreground" />{' '}
-              <ScrambleText
-                text="Patel"
-                delay={450}
-                className="gradient-text text-glow-primary"
-              />
-            </h1>
-
-            <motion.p
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="max-w-xl mx-auto text-base md:text-lg text-foreground/90 leading-relaxed mb-7 [text-shadow:0_2px_22px_hsl(var(--background)),0_0_3px_hsl(var(--background))]"
-            >
-              Large datasets, turned into analysis people can actually use.
-              Built across data engineering, analytics, and the markets.
-            </motion.p>
-
-            {/* Identity status strip, readable over the field */}
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.5 }}
-              className="inline-flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 mb-9 px-2 font-mono text-sm md:text-[15px] text-foreground/90 [text-shadow:0_1px_14px_hsl(var(--background)),0_0_4px_hsl(var(--background))]"
-            >
-              <span className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-accent caret-blink" />
-                <span>MS MIS · Texas A&amp;M</span>
-              </span>
-              <span className="text-muted-foreground/50">|</span>
-              <span>Data Engineering Intern · TTI</span>
-              <span className="text-muted-foreground/50">|</span>
-              <span className="flex items-center gap-1.5 text-muted-foreground">
-                <MapPin size={15} className="text-primary" />
-                College Station, TX
-              </span>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.6 }}
-              className="flex flex-wrap items-center justify-center gap-3"
-              data-testid="hero-cta"
-            >
-              <a href="https://www.linkedin.com/in/ujjawal-patel-7508b8199/" target="_blank" rel="noopener noreferrer">
-                <Button variant="outline" size="lg" className="rounded-full gap-2"><Linkedin size={18} /> LinkedIn</Button>
-              </a>
-              <a href="https://github.com/UJJAWAL-01" target="_blank" rel="noopener noreferrer">
-                <Button variant="outline" size="lg" className="rounded-full gap-2"><Github size={18} /> GitHub</Button>
-              </a>
-              <a href="mailto:ujjawal.patel@tamu.edu">
-                <Button variant="outline" size="lg" className="rounded-full gap-2"><Mail size={18} /> Email</Button>
-              </a>
-              <a href={resume} target="_blank" rel="noopener noreferrer">
-                <Button size="lg" className="rounded-full gap-2 glow-primary"><FileText size={18} /> Resume</Button>
-              </a>
-            </motion.div>
-          </div>
+        <div className="mt-7">
+          <FocusName text={profile.name} />
         </div>
-      )}
 
-      {/* Scroll indicator */}
-      {!showBoot && (
+        <motion.p {...rise(0.75)} className="mt-5 text-[26px] font-semibold tracking-[-0.03em] md:text-[36px]">
+          <span className="text-shine">{hero.role}</span>
+        </motion.p>
+
+        <motion.p {...rise(0.9)} className="mx-auto mt-5 max-w-2xl text-[17px] leading-relaxed text-muted-foreground md:text-[20px]">
+          {hero.lede}
+        </motion.p>
+        <motion.p {...rise(1)} className="meta mx-auto mt-2 max-w-2xl">
+          {hero.sub}
+        </motion.p>
+
+        <motion.div {...rise(1.15)} className="mt-9 flex justify-center" data-testid="hero-cta">
+          <Dock />
+        </motion.div>
+
+        <motion.div {...rise(1.3)} className="mx-auto mt-12 max-w-4xl md:mt-16">
+          <NowStrip />
+        </motion.div>
+      </div>
+
+      <LiquidLens constraintsRef={ref} className="left-[76%] top-[19%] md:left-[70%] md:top-[22%]" />
+
+      <div className="absolute bottom-6 left-1/2 hidden -translate-x-1/2 md:block">
         <motion.button
+          type="button"
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.1, duration: 0.5 }}
-          onClick={() => smoothScrollTo('#about')}
-          className="absolute bottom-16 left-1/2 -translate-x-1/2 z-20 text-muted-foreground hover:text-primary transition-colors animate-bounce"
-          data-testid="scroll-indicator"
-          aria-label="Scroll to about"
+          animate={{ opacity: 1, y: [0, 6, 0] }}
+          transition={{ opacity: { delay: 2 }, y: { duration: 2.2, repeat: Infinity, ease: 'easeInOut' } }}
+          onClick={() => smoothScrollTo('#work')}
+          aria-label="Scroll to work"
+          className="text-foreground/40 transition-colors hover:text-foreground"
         >
-          <ChevronDown size={28} />
+          <ChevronDown size={26} />
         </motion.button>
-      )}
+      </div>
     </section>
   );
 };

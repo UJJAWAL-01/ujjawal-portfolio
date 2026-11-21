@@ -1,205 +1,190 @@
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Sun, Moon, Linkedin, Mail, Github, FileText, Zap, ZapOff, Search } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
+import { Sun, Moon, FolderGit2, Briefcase, PenLine, User, Mail, Command } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
-import { useMotionPref } from '../context/MotionContext';
 import { smoothScrollTo } from './SmoothScroll';
-import { Button } from './ui/button';
+import { Glass } from './glass/Glass';
+import { notify } from './glass/Island';
+import { nav, profile } from '../content';
+import { cn } from '../lib/utils';
 
-const navLinks = [
-  { label: 'About', href: '#about' },
-  { label: 'Education', href: '#education' },
-  { label: 'Skills', href: '#skills' },
-  { label: 'Projects', href: '#projects' },
-  { label: 'Research', href: '#research' },
-  { label: 'Experience', href: '#experience' },
-  { label: 'Certs', href: '#certifications' },
-  { label: 'Refs', href: '#recommendations' },
-  { label: 'Contact', href: '#contact' },
-];
+const icons = { work: FolderGit2, experience: Briefcase, writing: PenLine, about: User, contact: Mail };
+const spring = { type: 'spring', stiffness: 380, damping: 32 };
 
-export const Navbar = () => {
-  const { theme, toggleTheme } = useTheme();
-  const { lite, toggleLite } = useMotionPref();
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+const Mark = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden="true">
+    <path d="M32 6 L54.5 19 V45 L32 58 L9.5 45 V19 Z" fill="none" stroke="currentColor" strokeWidth="5.5" strokeLinejoin="round" />
+    <path d="M32 22 L40.7 27 V37 L32 42 L23.3 37 V27 Z" fill="hsl(var(--accent))" />
+  </svg>
+);
+
+const useActiveSection = () => {
   const [active, setActive] = useState('hero');
-
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 50);
-    window.addEventListener('scroll', handleScroll);
-    handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  // Active-section tracking
-  useEffect(() => {
-    const ids = ['hero', ...navLinks.map((l) => l.href.slice(1))];
     const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) setActive(entry.target.id);
-        });
-      },
-      { rootMargin: '-45% 0px -50% 0px', threshold: 0 }
+      (entries) => entries.forEach((e) => e.isIntersecting && setActive(e.target.id)),
+      { rootMargin: '-45% 0px -50% 0px' }
     );
-    ids.forEach((id) => {
-      const el = document.getElementById(id);
-      if (el) observer.observe(el);
-    });
+    document.querySelectorAll('main section[id]').forEach((el) => observer.observe(el));
     return () => observer.disconnect();
   }, []);
+  return active;
+};
 
-  const scrollToSection = (href) => {
+const ThemeButton = ({ className }) => {
+  const { theme, toggleTheme } = useTheme();
+  const toggle = () => {
+    toggleTheme();
+    notify(theme === 'dark' ? 'Light mode' : 'Dark mode');
+  };
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      aria-label="Toggle theme"
+      data-testid="theme-toggle"
+      className={cn('relative flex h-9 w-9 items-center justify-center rounded-full text-foreground/75 transition-colors hover:text-foreground', className)}
+    >
+      <motion.span key={theme} initial={{ rotate: -90, opacity: 0, scale: 0.6 }} animate={{ rotate: 0, opacity: 1, scale: 1 }} transition={spring}>
+        {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
+      </motion.span>
+    </button>
+  );
+};
+
+export const Navbar = () => {
+  const active = useActiveSection();
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const go = (href) => (e) => {
+    e.preventDefault();
     smoothScrollTo(href);
-    setIsMobileMenuOpen(false);
   };
 
   return (
     <>
+      {/* Desktop: one floating capsule */}
       <motion.header
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled
-            ? 'bg-background/80 backdrop-blur-xl border-b border-border py-2.5'
-            : 'bg-transparent py-4'
-        }`}
-        data-testid="navbar"
+        initial={{ y: -30, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ ...spring, delay: 0.2 }}
+        className="fixed inset-x-0 top-4 z-50 hidden justify-center md:flex"
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
-            {/* Logo */}
-            <motion.a
-              href="#hero"
-              onClick={(e) => {
-                e.preventDefault();
-                smoothScrollTo('#hero');
-              }}
-              className="flex items-center gap-2 text-[1.35rem] font-display font-bold tracking-tight"
-              whileHover={{ scale: 1.03 }}
-              data-testid="navbar-logo"
-            >
-              <span className="w-2 h-2 rounded-full bg-accent caret-blink" />
-              <span className="text-primary">Ujjawal</span>
-              <span className="text-foreground">Patel</span>
-            </motion.a>
+        <Glass
+          refract
+          radius={30}
+          bezel={12}
+          strength={30}
+          strong={scrolled}
+          className={cn('flex items-center gap-1 py-1.5 pl-4 pr-1.5 transition-[padding] duration-500', scrolled && 'pl-3')}
+        >
+          <a href="#hero" onClick={go('#hero')} className="mr-3 flex items-center gap-2 text-[15px] font-semibold tracking-[-0.02em]">
+            <Mark />
+            <span>{profile.name}</span>
+          </a>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center gap-0.5" data-testid="desktop-nav">
-              {navLinks.map((link) => {
-                const isActive = active === link.href.slice(1);
-                return (
-                  <button
-                    key={link.href}
-                    onClick={() => scrollToSection(link.href)}
-                    className={`relative px-2 py-1.5 font-mono text-[12px] uppercase tracking-wide rounded transition-colors ${
-                      isActive
-                        ? 'text-primary bg-primary/10'
-                        : 'text-muted-foreground hover:text-foreground'
-                    }`}
-                    data-testid={`nav-link-${link.label.toLowerCase()}`}
-                  >
-                    {isActive && (
-                      <motion.span
-                        layoutId="nav-active"
-                        className="absolute inset-0 rounded border border-primary/30"
-                        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                      />
-                    )}
-                    <span className="relative">{link.label}</span>
-                  </button>
-                );
-              })}
-            </nav>
-
-            {/* Right side actions */}
-            <div className="flex items-center gap-1.5">
-              <button
-                onClick={() => window.dispatchEvent(new Event('palette:open'))}
-                className="hidden xl:flex items-center gap-2 px-2.5 py-1.5 rounded-md border border-border text-muted-foreground hover:text-primary hover:border-primary/40 transition-colors"
-                title="Command palette"
-                data-testid="command-open"
-              >
-                <Search size={14} />
-                <kbd className="font-mono text-[10px] tracking-wider">⌘K</kbd>
-              </button>
-
-              <div className="hidden md:flex items-center gap-0.5">
-                <motion.a href="https://www.linkedin.com/in/ujjawal-patel-7508b8199/" target="_blank" rel="noopener noreferrer" className="p-2 text-muted-foreground hover:text-primary transition-colors" whileHover={{ y: -2 }} data-testid="social-linkedin"><Linkedin size={19} /></motion.a>
-                <motion.a href="https://github.com/UJJAWAL-01" target="_blank" rel="noopener noreferrer" className="p-2 text-muted-foreground hover:text-primary transition-colors" whileHover={{ y: -2 }} data-testid="social-github"><Github size={19} /></motion.a>
-                <motion.a href="mailto:ujjawal.patel@tamu.edu" className="p-2 text-muted-foreground hover:text-primary transition-colors" whileHover={{ y: -2 }} data-testid="social-email"><Mail size={19} /></motion.a>
-              </div>
-
-              <Button variant="ghost" size="icon" onClick={toggleLite} className="rounded-md" title={lite ? 'Lite mode on, click for full effects' : 'Full effects on, click for lite mode'} data-testid="lite-toggle">
-                {lite ? <ZapOff size={19} /> : <Zap size={19} className="text-accent" />}
-              </Button>
-
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={toggleTheme}
-                className="rounded-md"
-                title={theme === 'dark' ? 'Session: After Hours, click for NY Open' : 'Session: NY Open, click for After Hours'}
-                data-testid="theme-toggle"
-              >
-                <AnimatePresence mode="wait">
-                  {theme === 'dark' ? (
-                    <motion.div key="sun" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.2 }}><Sun size={19} /></motion.div>
-                  ) : (
-                    <motion.div key="moon" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }} transition={{ duration: 0.2 }}><Moon size={19} /></motion.div>
+          <nav className="flex items-center" aria-label="Primary">
+            {nav.map((l) => {
+              const isActive = active === l.href.slice(1);
+              return (
+                <a
+                  key={l.href}
+                  href={l.href}
+                  onClick={go(l.href)}
+                  className={cn(
+                    'relative rounded-full px-3.5 py-1.5 text-[14px] font-medium transition-colors',
+                    isActive ? 'text-foreground' : 'text-foreground/60 hover:text-foreground'
                   )}
-                </AnimatePresence>
-              </Button>
+                >
+                  {isActive && (
+                    <motion.span
+                      layoutId="nav-droplet"
+                      transition={spring}
+                      className="absolute inset-0 -z-10 rounded-full bg-[var(--glass-fill-strong)] shadow-[var(--glass-inner),0_2px_8px_-3px_rgba(0,0,0,0.18)]"
+                    />
+                  )}
+                  {l.label}
+                </a>
+              );
+            })}
+          </nav>
 
-              <Button variant="ghost" size="icon" className="lg:hidden rounded-md" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} data-testid="mobile-menu-toggle">
-                {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-              </Button>
-            </div>
-          </div>
-        </div>
+          <span className="mx-1.5 h-5 w-px bg-foreground/10" />
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new Event('palette:open'))}
+            aria-label="Open command menu"
+            className="flex h-9 w-9 items-center justify-center rounded-full text-foreground/75 transition-colors hover:text-foreground"
+          >
+            <Command size={16} />
+          </button>
+          <ThemeButton />
+          <a
+            href={profile.resume}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ml-1 inline-flex h-9 items-center rounded-full bg-primary px-4 text-[14px] font-medium text-primary-foreground transition-transform hover:scale-[1.03] active:scale-95"
+          >
+            Résumé
+          </a>
+        </Glass>
       </motion.header>
 
-      {/* Mobile Menu */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-x-0 top-[56px] z-40 lg:hidden"
-            data-testid="mobile-menu"
-          >
-            <div className="mx-4 mt-2 rounded-lg border border-border bg-background/95 backdrop-blur-xl p-3">
-              <nav className="flex flex-col gap-0.5">
-                {navLinks.map((link) => {
-                  const isActive = active === link.href.slice(1);
-                  return (
-                    <button
-                      key={link.href}
-                      onClick={() => scrollToSection(link.href)}
-                      className={`px-4 py-3 text-left font-mono text-[15px] uppercase tracking-wider rounded transition-colors ${
-                        isActive ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                      }`}
-                      data-testid={`mobile-nav-${link.label.toLowerCase()}`}
-                    >
-                      <span className="text-accent mr-2">{isActive ? '▸' : ' '}</span>{link.label}
-                    </button>
-                  );
-                })}
-              </nav>
-              <div className="flex items-center justify-center gap-4 mt-3 pt-3 border-t border-border">
-                <a href="https://www.linkedin.com/in/ujjawal-patel-7508b8199/" target="_blank" rel="noopener noreferrer" className="p-2 text-muted-foreground hover:text-primary"><Linkedin size={20} /></a>
-                <a href="https://github.com/UJJAWAL-01" target="_blank" rel="noopener noreferrer" className="p-2 text-muted-foreground hover:text-primary"><Github size={20} /></a>
-                <a href="mailto:ujjawal.patel@tamu.edu" className="p-2 text-muted-foreground hover:text-primary"><Mail size={20} /></a>
-                <a href="/Resume_2026.pdf" target="_blank" rel="noopener noreferrer" className="p-2 text-muted-foreground hover:text-primary"><FileText size={20} /></a>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Mobile: small top pill + bottom tab bar */}
+      <header className="fixed inset-x-0 top-3 z-50 flex justify-center px-4 md:hidden">
+        <Glass radius={24} strong={scrolled} className="flex w-full items-center justify-between py-1 pl-4 pr-1">
+          <a href="#hero" onClick={go('#hero')} className="flex items-center gap-2 text-[15px] font-semibold tracking-[-0.02em]">
+            <Mark />
+            {profile.name}
+          </a>
+          <div className="flex items-center">
+            <ThemeButton />
+            <a href={profile.resume} target="_blank" rel="noopener noreferrer" className="ml-1 inline-flex h-8 items-center rounded-full bg-primary px-3 text-[13px] font-medium text-primary-foreground">
+              Résumé
+            </a>
+          </div>
+        </Glass>
+      </header>
+
+      <nav
+        aria-label="Sections"
+        className="fixed inset-x-0 bottom-0 z-50 flex justify-center px-4 pb-[max(12px,env(safe-area-inset-bottom))] md:hidden"
+      >
+        <Glass refract radius={30} bezel={12} strength={26} strong className="flex w-full max-w-md items-center justify-between px-1.5 py-1.5">
+          {nav.map((l) => {
+            const Icon = icons[l.icon];
+            const isActive = active === l.href.slice(1);
+            return (
+              <a
+                key={l.href}
+                href={l.href}
+                onClick={go(l.href)}
+                className={cn(
+                  'relative flex flex-1 flex-col items-center gap-0.5 rounded-full py-1.5 text-[10px] font-medium transition-colors',
+                  isActive ? 'text-accent' : 'text-foreground/60'
+                )}
+              >
+                {isActive && (
+                  <motion.span
+                    layoutId="tab-droplet"
+                    transition={spring}
+                    className="absolute inset-0 -z-10 rounded-full bg-[var(--glass-fill-strong)] shadow-[var(--glass-inner)]"
+                  />
+                )}
+                <Icon size={19} />
+                {l.label}
+              </a>
+            );
+          })}
+        </Glass>
+      </nav>
     </>
   );
 };

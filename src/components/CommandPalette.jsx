@@ -1,18 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Search, CornerDownLeft, User, GraduationCap, BarChart3, FolderGit2,
-  FlaskConical, Briefcase, Award, Star, Mail, Linkedin, Github, FileText,
-  SunMoon, Zap, ArrowUp, ArrowDown,
+  Search, CornerDownLeft, FolderGit2, Briefcase, LineChart, Wrench, User,
+  Quote, Mail, Linkedin, Github, FileText, SunMoon, ArrowUp, Copy, PenLine, BookOpen,
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
-import { useMotionPref } from '../context/MotionContext';
 import { smoothScrollTo } from './SmoothScroll';
-import resume from '../assets/Resume_2026.pdf';
+import { profile } from '../content';
+import { notify } from './glass/Island';
 
 export const CommandPalette = () => {
   const { toggleTheme } = useTheme();
-  const { toggleLite } = useMotionPref();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [active, setActive] = useState(0);
@@ -22,33 +20,30 @@ export const CommandPalette = () => {
     const go = (sel) => () => smoothScrollTo(sel);
     const ext = (url) => () => window.open(url, '_blank', 'noopener');
     return [
-      { id: 'about', label: 'About', hint: 'section', icon: User, group: 'Navigate', run: go('#about') },
-      { id: 'education', label: 'Education', hint: 'section', icon: GraduationCap, group: 'Navigate', run: go('#education') },
-      { id: 'skills', label: 'Skills & Tools', hint: 'section', icon: BarChart3, group: 'Navigate', run: go('#skills') },
-      { id: 'projects', label: 'Selected Work', hint: 'section', icon: FolderGit2, group: 'Navigate', run: go('#projects') },
-      { id: 'research', label: 'Research', hint: 'section', icon: FlaskConical, group: 'Navigate', run: go('#research') },
-      { id: 'experience', label: 'Experience', hint: 'section', icon: Briefcase, group: 'Navigate', run: go('#experience') },
-      { id: 'certs', label: 'Certifications', hint: 'section', icon: Award, group: 'Navigate', run: go('#certifications') },
-      { id: 'recs', label: 'Recommendation', hint: 'section', icon: Star, group: 'Navigate', run: go('#recommendations') },
-      { id: 'contact', label: 'Contact', hint: 'section', icon: Mail, group: 'Navigate', run: go('#contact') },
-      { id: 'resume', label: 'Open Résumé', hint: 'PDF', icon: FileText, group: 'Actions', run: ext(resume) },
-      { id: 'email', label: 'Email Ujjawal', hint: 'mailto', icon: Mail, group: 'Actions', run: () => (window.location.href = 'mailto:ujjawal.patel@tamu.edu') },
-      { id: 'linkedin', label: 'LinkedIn', hint: 'profile', icon: Linkedin, group: 'Actions', run: ext('https://www.linkedin.com/in/ujjawal-patel-7508b8199/') },
-      { id: 'github', label: 'GitHub', hint: 'repos', icon: Github, group: 'Actions', run: ext('https://github.com/UJJAWAL-01') },
-      { id: 'session', label: 'Toggle theme (light / dark)', hint: 'theme', icon: SunMoon, group: 'Settings', run: toggleTheme },
-      { id: 'lite', label: 'Toggle effects (lite mode)', hint: '3D on/off', icon: Zap, group: 'Settings', run: toggleLite },
-      { id: 'top', label: 'Jump to Top', hint: 'g', icon: ArrowUp, group: 'Settings', run: go('#hero') },
-      { id: 'bottom', label: 'Jump to Bottom', hint: 'G', icon: ArrowDown, group: 'Settings', run: go('#contact') },
+      { id: 'work', label: 'Selected work', icon: FolderGit2, group: 'Go to', run: go('#work') },
+      { id: 'experience', label: 'Experience', icon: Briefcase, group: 'Go to', run: go('#experience') },
+      { id: 'writing', label: 'Writing', icon: PenLine, group: 'Go to', run: go('#writing') },
+      { id: 'side', label: 'Markets, on the side', icon: LineChart, group: 'Go to', run: go('#side-work') },
+      { id: 'stack', label: 'Toolbox', icon: Wrench, group: 'Go to', run: go('#stack') },
+      { id: 'about', label: 'About', icon: User, group: 'Go to', run: go('#about') },
+      { id: 'rec', label: 'Reference', icon: Quote, group: 'Go to', run: go('#recommendation') },
+      { id: 'contact', label: 'Contact', icon: Mail, group: 'Go to', run: go('#contact') },
+      { id: 'resume', label: 'Open résumé', icon: FileText, group: 'Links', run: ext(profile.resume) },
+      { id: 'copy', label: 'Copy email address', icon: Copy, group: 'Links', run: () => navigator.clipboard?.writeText(profile.email).then(() => notify('Email copied')) },
+      { id: 'linkedin', label: 'LinkedIn', icon: Linkedin, group: 'Links', run: ext(profile.links.linkedin) },
+      { id: 'github', label: 'GitHub', icon: Github, group: 'Links', run: ext(profile.links.github) },
+      { id: 'medium', label: 'Medium', icon: BookOpen, group: 'Links', run: ext(profile.links.medium) },
+      { id: 'theme', label: 'Toggle light / dark', icon: SunMoon, group: 'Settings', run: toggleTheme },
+      { id: 'top', label: 'Back to top', icon: ArrowUp, group: 'Settings', run: go('#hero') },
     ];
-  }, [toggleTheme, toggleLite]);
+  }, [toggleTheme]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return commands;
-    return commands.filter((c) => (c.label + ' ' + c.hint + ' ' + c.group).toLowerCase().includes(q));
+    return commands.filter((c) => `${c.label} ${c.group}`.toLowerCase().includes(q));
   }, [query, commands]);
 
-  // Global hotkeys to open
   useEffect(() => {
     const onKey = (e) => {
       const tag = e.target?.tagName;
@@ -56,7 +51,7 @@ export const CommandPalette = () => {
       if ((e.key === 'k' || e.key === 'K') && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
         setOpen((o) => !o);
-      } else if (!typing && (e.key === '/' || e.key === '?')) {
+      } else if (!typing && e.key === '/') {
         e.preventDefault();
         setOpen(true);
       } else if (e.key === 'Escape') {
@@ -100,59 +95,58 @@ export const CommandPalette = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[90] flex items-start justify-center pt-[14vh] px-4 bg-black/60 backdrop-blur-sm"
+          transition={{ duration: 0.15 }}
+          className="fixed inset-0 z-[90] flex items-start justify-center bg-background/30 px-4 pt-[14vh] backdrop-blur-[2px]"
           onClick={() => setOpen(false)}
         >
           <motion.div
-            initial={{ opacity: 0, scale: 0.97, y: -8 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.97, y: -8 }}
+            initial={{ opacity: 0, y: -6, scale: 0.985 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -6, scale: 0.985 }}
+            transition={{ duration: 0.18 }}
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-xl panel overflow-hidden"
+            role="dialog"
+            aria-label="Command menu"
+            className="glass glass-strong w-full max-w-lg overflow-hidden rounded-[26px] shadow-2xl"
           >
-            {/* input */}
-            <div className="flex items-center gap-3 px-4 py-3 border-b border-border">
-              <Search size={16} className="text-primary shrink-0" />
+            <div className="flex items-center gap-3 border-b border-foreground/10 px-5 py-3.5">
+              <Search size={15} className="shrink-0 text-muted-foreground" />
               <input
                 ref={inputRef}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={onListKey}
-                placeholder="Type a command or section…  e.g. PROJ, resume, session"
-                className="flex-1 bg-transparent outline-none text-sm text-foreground placeholder:text-muted-foreground font-mono"
+                placeholder="Jump to a section or link…"
+                className="flex-1 bg-transparent text-[15px] text-foreground outline-none placeholder:text-faint"
               />
-              <kbd className="font-mono text-[10px] text-muted-foreground border border-border rounded px-1.5 py-0.5">ESC</kbd>
+              <span className="kbd">esc</span>
             </div>
 
-            {/* list */}
-            <div className="max-h-[52vh] overflow-y-auto py-2">
+            <div className="max-h-[52vh] overflow-y-auto p-1.5">
               {filtered.length === 0 && (
-                <div className="px-4 py-6 text-center font-mono text-xs text-muted-foreground">No matches.</div>
+                <div className="meta px-3 py-6 text-center">No matches.</div>
               )}
               {filtered.map((cmd, i) => (
                 <button
                   key={cmd.id}
                   onMouseEnter={() => setActive(i)}
                   onClick={() => run(cmd)}
-                  className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors ${
-                    i === active ? 'bg-primary/10' : 'hover:bg-muted/40'
+                  className={`flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left transition-colors ${
+                    i === active ? 'bg-[var(--glass-fill-strong)] text-foreground shadow-[var(--glass-inner)]' : 'text-muted-foreground'
                   }`}
                 >
-                  <cmd.icon size={16} className={i === active ? 'text-primary' : 'text-muted-foreground'} />
-                  <span className={`flex-1 text-sm ${i === active ? 'text-foreground' : 'text-muted-foreground'}`}>{cmd.label}</span>
-                  <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground/70">{cmd.group}</span>
-                  {i === active && <CornerDownLeft size={13} className="text-primary" />}
+                  <cmd.icon size={15} className={i === active ? 'text-accent' : ''} />
+                  <span className="flex-1 text-[14px]">{cmd.label}</span>
+                  <span className="meta text-faint">{cmd.group}</span>
+                  {i === active && <CornerDownLeft size={13} className="text-muted-foreground" />}
                 </button>
               ))}
             </div>
 
-            {/* footer / shortcuts */}
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-2.5 border-t border-border bg-background/40 font-mono text-[10px] text-muted-foreground">
-              <span><kbd className="text-primary">↑↓</kbd> navigate</span>
-              <span><kbd className="text-primary">↵</kbd> run</span>
-              <span><kbd className="text-primary">j / k</kbd> sections</span>
-              <span><kbd className="text-primary">g / G</kbd> top / bottom</span>
-              <span className="ml-auto"><kbd className="text-accent">⌘K</kbd> / <kbd className="text-accent">/</kbd></span>
+            <div className="meta flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-foreground/10 px-5 py-2.5 text-faint">
+              <span><span className="kbd">↑↓</span> move</span>
+              <span><span className="kbd">↵</span> open</span>
+              <span><span className="kbd">j</span> <span className="kbd">k</span> sections</span>
             </div>
           </motion.div>
         </motion.div>

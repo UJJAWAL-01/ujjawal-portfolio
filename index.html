@@ -1,27 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="light">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#070b14" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#fbf6ec" />
 
-    <title>Ujjawal Patel - Data & Business Analyst</title>
+    <title>Ujjawal Patel · Data Engineer</title>
     <meta
       name="description"
-      content="Ujjawal Patel - MS MIS student at Texas A&M and Data Engineering Intern at TTI. Turning large-scale data into decisions across business analytics, data engineering, and the markets."
+      content="Ujjawal Patel is a data engineer at the Texas A&M Transportation Institute working on geospatial pipelines, data platforms, and agent-assisted engineering. MS MIS at Texas A&M, graduating May 2027."
     />
     <meta name="author" content="Ujjawal Patel" />
-    <meta
-      name="keywords"
-      content="Ujjawal Patel, Data Analyst, Business Analyst, Data Engineer, MIS, Texas A&M, technical analysis, portfolio"
-    />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Ujjawal Patel - Data & Business Analyst" />
+    <meta property="og:title" content="Ujjawal Patel · Data Engineer" />
     <meta
       property="og:description"
-      content="Large-scale data, refined into decisions that hold under pressure — business analytics, data engineering, analysis, and the markets."
+      content="Data engineer working on geospatial pipelines, data platforms, and agent-assisted engineering."
     />
     <meta property="og:image" content="/og.svg" />
     <meta property="og:image:width" content="1200" />
@@ -29,15 +25,32 @@
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Ujjawal Patel - Data & Business Analyst" />
+    <meta name="twitter:title" content="Ujjawal Patel · Data Engineer" />
     <meta
       name="twitter:description"
-      content="Large-scale data, refined into decisions that hold under pressure."
+      content="Geospatial pipelines, data platforms, and agent-assisted engineering."
     />
     <meta name="twitter:image" content="/og.svg" />
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/favicon.svg" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Apply the saved theme before first paint to avoid a flash -->
+    <script>
+      try {
+        if (localStorage.getItem('portfolio-theme-v2') === 'dark') {
+          document.documentElement.classList.remove('light');
+          document.documentElement.classList.add('dark');
+        }
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

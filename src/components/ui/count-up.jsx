@@ -1,33 +1,33 @@
 import { useEffect, useRef, useState } from 'react';
-import { useInView } from 'framer-motion';
+import { animate, useInView } from 'framer-motion';
 
-/** Counts up to `value` when scrolled into view. */
-export const CountUp = ({ value, duration = 1.2, prefix = '', suffix = '', className }) => {
+/** Counts a value like "10.6M", "30+" or "9.15" up from zero when it scrolls into view. */
+export const CountUp = ({ value, className }) => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-40px' });
-  const [display, setDisplay] = useState(0);
+  const match = /^([\d.]+)(.*)$/.exec(value);
+  const target = match ? parseFloat(match[1]) : 0;
+  const suffix = match ? match[2] : '';
+  const decimals = match && match[1].includes('.') ? match[1].split('.')[1].length : 0;
+  const [shown, setShown] = useState(match ? (0).toFixed(decimals) : value);
 
   useEffect(() => {
-    if (!inView) return;
-    let raf;
-    const start = performance.now();
-    const tick = (now) => {
-      const p = Math.min(1, (now - start) / (duration * 1000));
-      const eased = 1 - Math.pow(1 - p, 3);
-      setDisplay(value * eased);
-      if (p < 1) raf = requestAnimationFrame(tick);
-      else setDisplay(value);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [inView, value, duration]);
+    if (!inView || !match) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setShown(target.toFixed(decimals));
+      return;
+    }
+    const controls = animate(0, target, {
+      duration: 1.6,
+      ease: [0.16, 1, 0.3, 1],
+      onUpdate: (v) => setShown(v.toFixed(decimals)),
+    });
+    return () => controls.stop();
+  }, [inView]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const isInt = Number.isInteger(value);
   return (
     <span ref={ref} className={className}>
-      {prefix}
-      {isInt ? Math.round(display) : display.toFixed(2)}
-      {suffix}
+      {match ? `${shown}${suffix}` : value}
     </span>
   );
 };
